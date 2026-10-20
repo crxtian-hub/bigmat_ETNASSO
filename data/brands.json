@@ -1,0 +1,178 @@
+[
+    {
+        "id": "bb28fe9be3989675",
+        "name": "Atlas Filtri",
+        "link": "https://it.atlasfiltri.com/it/prodotti/singolo-stadio",
+        "type": "rivendita",
+        "image": "uploads/brands/28f7bbd8f0b67233393b1f7e.jpg",
+        "updatedAt": "2026-10-19T18:01:02+00:00"
+    },
+    {
+        "id": "f7ef547548e77185",
+        "name": "Max Meyer",
+        "link": "www.maxmeyer.com",
+        "type": "rivendita",
+        "image": "uploads/brands/06d648df7cb3bb03678d466d.png",
+        "updatedAt": "2026-10-19T17:59:13+00:00"
+    },
+    {
+        "id": "737120721c50deb5",
+        "name": "Virax",
+        "link": "www.virax.com",
+        "type": "rivendita",
+        "image": "uploads/brands/87e7f9a4dda97a6e2136403d.webp",
+        "updatedAt": "2026-10-19T17:55:48+00:00"
+    },
+    {
+        "id": "f40f55aadd57868c",
+        "name": "Duss",
+        "link": "www.duss.com",
+        "type": "rivendita",
+        "image": "uploads/brands/047c99da678db0e4e2c9dcc4.png",
+        "updatedAt": "2026-10-19T17:53:22+00:00"
+    },
+    {
+        "id": "cf4303f7fe76c1eb",
+        "name": "Fila Solutions",
+        "link": "",
+        "type": "rivendita",
+        "image": "uploads/brands/00124d1daacc782027d9cd07.png",
+        "updatedAt": "2026-10-19T17:52:03+00:00"
+    },
+    {
+        "id": "f69e15d79cb2f4f3",
+        "name": "Biemme",
+        "link": "www.biemme.it",
+        "type": "rivendita",
+        "image": "uploads/brands/1b00a41160c0b4c948798e8f.jpg",
+        "updatedAt": "2026-10-19T17:47:11+00:00"
+    },
+    {
+        "id": "3674843f44f31401",
+        "name": "Knauf",
+        "link": "www.kanuf.com",
+        "type": "rivendita",
+        "image": "uploads/brands/7a8180a2f2d595409ac50370.webp",
+        "updatedAt": "2026-10-19T17:44:13+00:00"
+    },
+    {
+        "id": "242f7391fc9c15ed",
+        "name": "Imer",
+        "link": "https://www.imergroup.com/it/",
+        "type": "rivendita",
+        "image": "uploads/brands/ee28e6701c86178ed510eedb.jpg",
+        "updatedAt": "2026-10-19T17:42:30+00:00"
+    },
+    {
+        "id": "75b370ab20516104",
+        "name": "Mapei",
+        "link": "https://www.mapei.com/it/it/prodotti-e-soluzioni",
+        "type": "rivendita",
+        "image": "uploads/brands/dfba7e7527862273261852a0.jpg",
+        "updatedAt": "2026-10-19T13:56:15+00:00"
+    },
+    {
+        "id": "ce8729e707b7a35a",
+        "name": "Hikoki",
+        "link": "www.hikoki.it",
+        "type": "rivendita",
+        "image": "uploads/brands/29efbd02454dbbba2752f8d6.webp",
+        "updatedAt": "2026-10-19T13:55:04+00:00"
+    },
+    {
+        "id": "d9f5f9ab1cb73e79",
+        "name": "Idea Group",
+        "link": "https://www.ideagroup.it/",
+        "type": "showroom",
+        "image": "uploads/brands/0741ae7aea799688c10be9f6.webp",
+        "updatedAt": "2026-10-19T13:52:52+00:00"
+    },
+    {
+        "id": "a4ecdd2e9983baf2",
+        "name": "Pamesa",
+        "link": "https://www.pamesa.com/productospam.html",
+        "type": "showroom",
+        "image": "uploads/brands/ca1fc5f132194353db9b2582.jpg",
+        "updatedAt": "2026-10-19T13:52:24+00:00"
+    },
+    {
+        "id": "a559544128384ec0",
+        "name": "Del Conca",
+        "link": "https://www.delconca.com/it/?",
+        "type": "showroom",
+        "image": "uploads/brands/bf6303b21f8b7948abca02a3.jpg",
+        "updatedAt": "2026-10-19T13:49:20+00:00"
+    },
+    {
+        "id": "c65299163794f3fe",
+        "name": "Atlas Concorde",
+        "link": "httpshttps://www.atlasconcorde.com/it://www.delconca.com/it/?",
+        "type": "showroom",
+        "image": "uploads/brands/4cfd1665d613fd92e887d9e2.jpg",
+        "updatedAt": "2026-10-19T13:51:34+00:00"
+    },
+    {
+        "id": "2c2bb511adb1c342",
+        "name": "Hatria",
+        "link": "https://hatria.com/",
+        "type": "showroom",
+        "image": "uploads/brands/a3f1629fb064146d5f8ac519.webp",
+        "updatedAt": "2026-10-19T13:46:25+00:00"
+    },
+    {
+        "id": "956539b6a0ef9348",
+        "name": "Rak",
+        "link": "https://www.rakceramics.com/italy/it/",
+        "type": "showroom",
+        "image": "uploads/brands/bf5d7e2e5db1b0ad6517a47d.jpg",
+        "updatedAt": "2026-10-19T13:45:28+00:00"
+    },
+    {
+        "id": "3c63b8cf5f5ea479",
+        "name": "Fir",
+        "link": "https://www.fir-italia.it/",
+        "type": "showroom",
+        "image": "uploads/brands/0910e4305dfe7003680ee601.jpg",
+        "updatedAt": "2026-10-19T13:41:19+00:00"
+    },
+    {
+        "id": "099ea655de038df3",
+        "name": "Treemme",
+        "link": "https://www.rubinetterie3m.it/it",
+        "type": "showroom",
+        "image": "uploads/brands/2232e08bfb5d88663b522ba1.png",
+        "updatedAt": "2026-10-19T13:40:26+00:00"
+    },
+    {
+        "id": "65b383fea1d6974f",
+        "name": "Hansgrohe",
+        "link": "https://www.hansgrohe.it/",
+        "type": "showroom",
+        "image": "uploads/brands/62ceabbfc4a4b9754cff30cf.jpg",
+        "updatedAt": "2026-10-19T13:39:30+00:00"
+    },
+    {
+        "id": "dfe00619ea1e2eb2",
+        "name": "Rothoblaas",
+        "link": "https://www.rothoblaas.it",
+        "type": "rivendita",
+        "image": "uploads/brands/1bb698c174f3ee32dc2718cc.png",
+        "updatedAt": "2026-10-19T13:54:41+00:00"
+    },
+    {
+        "id": "88e3013b2b0763c7",
+        "name": "Gaboli",
+        "link": "https://www.rakceramics.com/italy/it/",
+        "type": "showroom",
+        "image": "uploads/brands/ae28a4d9b7b52a2588cc5e67.png",
+        "updatedAt": "2026-10-19T13:37:53+00:00"
+    },
+    {
+        "id": "e026dc54864c7004",
+        "name": "Frattini",
+        "link": "https://www.rakceramics.com/italy/it/",
+        "type": "showroom",
+        "image": "uploads/brands/53ff28a798af7e78e046f1f4.webp",
+        "updatedAt": "2026-10-19T13:37:37+00:00"
+    }
+]
