@@ -1,0 +1,15 @@
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { background: #f5f2f0; }
+.maintenance-page { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+.maintenance-page picture, .maintenance-page img { display: block; width: 100vw; height: 100vh; }
+.maintenance-page img { object-fit: fill; }
+.svg-link { position: absolute; z-index: 2; display: block; height: 5%; }
+.svg-link:focus-visible { outline: 2px solid #df1f1f; outline-offset: 4px; }
+.svg-link-whatsapp { top: 67.5%; left: 29.5%; width: 12%; }
+.svg-link-instagram { top: 67.5%; left: 46.5%; width: 12%; }
+.svg-link-email { top: 67.5%; left: 63.5%; width: 9%; }
+@media (max-width: 800px) {
+  .svg-link-whatsapp { top: 59%; left: 35%; width: 31%; }
+  .svg-link-instagram { top: 65%; left: 35%; width: 31%; }
+  .svg-link-email { top: 70.5%; left: 35%; width: 31%; }
+}
