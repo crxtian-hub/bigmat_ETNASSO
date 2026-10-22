@@ -292,6 +292,37 @@ function HeaderLogoTransition({ transition, onSwap, onDone }) {
   useLayoutEffect(() => {
     let cancelled = false;
     const animations = [];
+    const nextFrame = () => new Promise((resolve) => window.requestAnimationFrame(resolve));
+    async function waitForImage(image) {
+      if (!image || image.complete) return;
+      try {
+        await image.decode();
+      } catch {
+        await new Promise((resolve) => {
+          let settled = false;
+          const finish = () => {
+            if (settled) return;
+            settled = true;
+            image.removeEventListener('load', finish);
+            image.removeEventListener('error', finish);
+            resolve();
+          };
+          image.addEventListener('load', finish, { once: true });
+          image.addEventListener('error', finish, { once: true });
+          window.setTimeout(finish, 900);
+        });
+      }
+    }
+    async function waitForBounds(selector, attempts = 24) {
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        const element = document.querySelector(selector);
+        const bounds = element?.getBoundingClientRect();
+        if (bounds?.width && bounds.height) return { element, bounds };
+        await nextFrame();
+        if (cancelled) return { element: null, bounds: null };
+      }
+      return { element: null, bounds: null };
+    }
     async function animate(element, frames, duration) {
       const animation = element.animate(frames, { duration, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
       animations.push(animation);
@@ -302,16 +333,16 @@ function HeaderLogoTransition({ transition, onSwap, onDone }) {
       if (transition.phase === 'out') {
         if (transition.mobile) {
           const nextLogo = document.querySelector('.home-logo img');
-          if (nextLogo) await nextLogo.decode();
+          await waitForImage(nextLogo);
         }
         await animate(rectangle, [{ clipPath: 'inset(0 0% 0 0)' }, { clipPath: 'inset(0 100% 0 0)' }], 360);
         if (!cancelled) callbacksRef.current.onSwap();
         return;
       }
-      const targetElement = transition.mobile || window.matchMedia('(max-width: 767px)').matches
-        ? document.querySelector('.home-logo')
-        : document.querySelector('.home-logo img');
-      const targetBounds = targetElement?.getBoundingClientRect();
+      const targetSelector = transition.mobile || window.matchMedia('(max-width: 767px)').matches
+        ? '.home-logo'
+        : '.home-logo img';
+      const { bounds: targetBounds } = await waitForBounds(targetSelector);
       if (!targetBounds || !targetBounds.width || !targetBounds.height) {
         callbacksRef.current.onDone();
         return;
@@ -327,8 +358,8 @@ function HeaderLogoTransition({ transition, onSwap, onDone }) {
         width: `${target.width}px`, height: `${target.height}px`,
       });
       await Promise.all([
-        rectangle.querySelector('img').decode(),
-        document.querySelector('.home-logo img').decode(),
+        waitForImage(rectangle.querySelector('img')),
+        waitForImage(document.querySelector('.home-logo img')),
       ]);
       if (cancelled) return;
       await animate(rectangle, [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], 440);
@@ -541,6 +572,7 @@ function ShowroomRenderImage({ render, closing, onClosed }) {
     <figure className={`showroom-render-image ${ready ? 'is-ready' : ''} ${closing ? 'is-closing' : ''}`}>
     <img
     ref={imageRef}
+    className="showroom-render-main-image"
     src={assetUrl(render.image)}
     alt={render.model || render.name || render.brand || 'Render showroom'}
     decoding="async"
@@ -2503,7 +2535,9 @@ async function deleteProduct(product) {
     {logoTransition && <HeaderLogoTransition transition={logoTransition}
       onSwap={() => {
         navigatePublic(logoTransition.path);
-        setLogoTransition({ ...logoTransition, phase: 'resize' });
+        setLogoTransition((currentTransition) => currentTransition
+          ? { ...currentTransition, phase: 'resize' }
+          : null);
       }}
       onDone={() => { logoBusyRef.current = false; setLogoTransition(null); }} />}
     {!isAdminPage && !isPreloaderPage && renderMobileMenu()}
@@ -2677,7 +2711,7 @@ async function deleteProduct(product) {
         className={`home-nav-item ${item.className} ${active === item.key ? 'is-active' : ''}`}
         href={item.href}
         key={item.key}
-        onClick={(event) => handlePublicNavClick(event, item.href, { animateLogo: false, animateLogoOnMobile: true })}
+        onClick={(event) => handlePublicNavClick(event, item.href)}
         >
         {item.label}
         </a>

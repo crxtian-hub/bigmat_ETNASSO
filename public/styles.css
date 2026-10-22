@@ -2155,6 +2155,7 @@ a {
   grid-column: 1 / -1;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   min-width: 0;
   min-height: 0;
   margin: 0;
@@ -2176,6 +2177,15 @@ a {
 
 .showroom-render-image.is-ready:not(.is-closing) img {
   clip-path: inset(0 0 0 0);
+}
+
+.showroom-render-image img.showroom-render-main-image {
+  opacity: 1;
+  transition: clip-path 860ms cubic-bezier(0.16, 1, 0.3, 1), opacity 220ms ease;
+}
+
+.showroom-render-image.is-closing img.showroom-render-main-image {
+  opacity: 0;
 }
 
 .showroom-render-tags {
@@ -2298,7 +2308,12 @@ a {
   color: #fff;
   font-size: calc(100vw * 16 / 1470);
   pointer-events: auto;
-  transition: background-color 180ms ease;
+  transition: background-color 180ms ease, opacity 220ms ease;
+}
+
+.showroom-render-page.is-closing .showroom-render-tags-toggle {
+  opacity: 0;
+  pointer-events: none;
 }
 
 @media (max-width: 767px) {
@@ -2409,6 +2424,7 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .showroom-render-image img,
   .showroom-render-tags,
+  .showroom-render-tags-toggle,
   .showroom-render-navigation,
   .showroom-render-close {
     clip-path: none;
@@ -2431,18 +2447,36 @@ a {
 .showroom-render-controls {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  column-gap: var(--layout-gap);
   align-items: end;
 }
 
 .showroom-render-navigation {
-  grid-column: 2;
+  grid-column: 1 / -1;
   grid-row: 1;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   align-items: center;
-  justify-content: center;
-  gap: calc(var(--px) * 15);
+  column-gap: var(--layout-gap);
+  width: 100%;
   transition: opacity 220ms ease;
+}
+
+.showroom-render-navigation-button-prev {
+  grid-column: 2;
+  justify-self: start;
+}
+
+.showroom-render-navigation .showroom-render-indicators {
+  grid-column: 3 / 7;
+  justify-self: center;
+  max-width: none;
+}
+
+.showroom-render-navigation-button-next {
+  grid-column: 7;
+  justify-self: end;
 }
 
 .showroom-render-navigation button {
@@ -2451,8 +2485,8 @@ a {
 
 .showroom-render-navigation-icon {
   display: block;
-  width: 44px;
-  height: 44px;
+  width: max(44px, calc(var(--px) * 74));
+  height: max(44px, calc(var(--px) * 74));
   background: currentColor;
   -webkit-mask: url("/assets/logos/TornaSu_Arrow.svg") center / contain no-repeat;
   mask: url("/assets/logos/TornaSu_Arrow.svg") center / contain no-repeat;
@@ -2480,8 +2514,8 @@ a {
 }
 
 .showroom-render-navigation button {
-  width: 44px;
-  height: 44px;
+  width: max(44px, calc(var(--px) * 74));
+  height: max(44px, calc(var(--px) * 74));
 }
 
 @media (max-width: 767px) {
@@ -2539,7 +2573,7 @@ a {
   top: 50%;
   left: 50%;
   width: 70%;
-  height: 2.5px;
+  height: max(2.5px, calc(var(--px) * 4.5));
   background: currentColor;
   transform: translate(-50%, -50%) rotate(45deg);
 }
@@ -2574,9 +2608,10 @@ a {
 }
 
 .showroom-render-label {
-  grid-column: 1;
-  grid-row: 1;
-  justify-self: start;
+  position: absolute;
+  top: calc(var(--px) * 29);
+  left: var(--layout-margin);
+  z-index: 2;
   font-size: max(14px, calc(var(--px) * 24));
   line-height: 1;
 }
