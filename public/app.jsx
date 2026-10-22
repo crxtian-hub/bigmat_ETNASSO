@@ -3182,7 +3182,12 @@ if (isNoleggioPage) {
         <div className="noleggio-product-data">
         {product.brand && <p className="noleggio-product-brand"><RevealLines lines={[product.brand]} /></p>}
         {productModel && <h3><RevealLines lines={[productModel]} /></h3>}
-        {product.miniDescription && <p className="noleggio-product-description"><RevealLines lines={product.miniDescription.split('\n')} /></p>}
+        {product.miniDescription && (
+          <p className="noleggio-product-description">
+          <span className="noleggio-product-description-desktop"><RevealLines lines={product.miniDescription.split('\n')} /></span>
+          <span className="noleggio-product-description-mobile">{product.miniDescription}</span>
+          </p>
+        )}
         {productPrices.length > 0 && (
           <p className="noleggio-product-prices">
           {productPrices.map((price, index) => (

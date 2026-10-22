@@ -3706,6 +3706,10 @@ a {
   line-height: 1.2;
 }
 
+.noleggio-product-description-mobile {
+  display: none;
+}
+
 .noleggio-product-prices {
   display: grid;
   gap: calc(var(--px) * 3);
@@ -7741,7 +7745,7 @@ h3 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     width: calc(100vw - 2 * var(--layout-margin));
     margin-inline: var(--layout-margin);
-    padding-top: calc(100vw * 75 / 640) !important;
+    padding-top: calc(100vw * 75 / 400) !important;
     font-size: 10vw;
     line-height: 1.02;
     text-align: center;
@@ -7780,14 +7784,15 @@ h3 {
   
   .noleggio-product-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12vw var(--layout-gap);
+    gap: 50px var(--layout-gap);
     margin-top: 10vw;
   }
   
   .noleggio-product-item {
     grid-column: 1 / -1;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 3vw var(--layout-gap);
+    row-gap: 25px;
+    column-gap: var(--layout-gap);
   }
   
   .noleggio-product-item img {
@@ -7802,42 +7807,39 @@ h3 {
     grid-column: 1 / -1;
     grid-row: 2;
     min-width: 0;
-    gap: 3vw;
+    gap: 12.5px;
     font-size: 4vw;
     line-height: 1.15;
     overflow-wrap: anywhere;
   }
   
   .noleggio-product-data h3 {
-    font-size: 5.5vw;
+    font-size: 7vw;
     line-height: 1.05;
   }
   
-  .noleggio-product-brand {
+  .noleggio-product-brand,
+  .noleggio-product-description,
+  .noleggio-product-prices {
     font-size: 4vw;
     line-height: 1.15;
   }
-  
-  .noleggio-product-description,
-  .noleggio-product-prices {
-    font-size: 3.5vw;
-    line-height: 1.15;
+
+  .noleggio-product-description-desktop {
+    display: none;
+  }
+
+  .noleggio-product-description-mobile {
+    display: inline;
   }
   
   .noleggio-product-data .noleggio-product-prices {
-    margin-top: 2vw;
+    margin-top: 0;
     gap: 2vw;
   }
   
   .noleggio-product-item .noleggio-product-arrow {
-    position: static;
-    grid-column: 4;
-    grid-row: 3;
-    justify-self: end;
-    margin-right: 1vw;
-    font-size: 4vw;
-    opacity: 1;
-    visibility: visible;
+    display: none;
   }
   
   .noleggio-product-item:not(a) .noleggio-product-arrow {
