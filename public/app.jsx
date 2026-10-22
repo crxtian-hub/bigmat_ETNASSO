@@ -300,11 +300,15 @@ function HeaderLogoTransition({ transition, onSwap, onDone }) {
     async function run() {
       const rectangle = rectangleRef.current;
       if (transition.phase === 'out') {
+        if (transition.mobile) {
+          const nextLogo = document.querySelector('.home-logo img');
+          if (nextLogo) await nextLogo.decode();
+        }
         await animate(rectangle, [{ clipPath: 'inset(0 0% 0 0)' }, { clipPath: 'inset(0 100% 0 0)' }], 360);
         if (!cancelled) callbacksRef.current.onSwap();
         return;
       }
-      const targetElement = window.matchMedia('(max-width: 767px)').matches
+      const targetElement = transition.mobile || window.matchMedia('(max-width: 767px)').matches
         ? document.querySelector('.home-logo')
         : document.querySelector('.home-logo img');
       const targetBounds = targetElement?.getBoundingClientRect();
@@ -313,8 +317,8 @@ function HeaderLogoTransition({ transition, onSwap, onDone }) {
         return;
       }
       const target = {
-        left: targetBounds.left + window.scrollX,
-        top: targetBounds.top + getPageScrollTop(),
+        left: targetBounds.left + (transition.mobile ? 0 : window.scrollX),
+        top: targetBounds.top + (transition.mobile ? 0 : getPageScrollTop()),
         width: targetBounds.width,
         height: targetBounds.height,
       };
@@ -340,7 +344,7 @@ function HeaderLogoTransition({ transition, onSwap, onDone }) {
   }, [transition]);
 
   return ReactDOM.createPortal(
-    <div ref={rectangleRef} className="header-logo-transition" data-phase={transition.phase} aria-hidden="true"
+    <div ref={rectangleRef} className={`header-logo-transition${transition.mobile ? ' is-mobile' : ''}`} data-phase={transition.phase} aria-hidden="true"
       style={{ left: transition.from.left, top: transition.from.top, width: transition.from.width, height: transition.from.height, clipPath: transition.phase === 'out' ? 'inset(0 0% 0 0)' : 'inset(0 100% 0 0)' }}>
       <img src={transition.phase === 'out' ? transition.fromSrc : transition.toSrc} alt="" />
     </div>, document.body
@@ -2473,15 +2477,24 @@ async function deleteProduct(product) {
     );
   }
 
-  async function handlePublicNavClick(event, path) {
+  async function handlePublicNavClick(event, path, { animateLogo = true, animateLogoOnMobile = false } = {}) {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0) return;
     event.preventDefault();
     if (logoBusyRef.current) return;
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    if (!animateLogo && !(isMobile && animateLogoOnMobile)) {
+      closeMobileMenu();
+      navigatePublic(path);
+      return;
+    }
     const source = document.querySelector('.home-logo img');
-    const sourceFrame = window.matchMedia('(max-width: 767px)').matches
-      ? document.querySelector('.home-logo')
+    const sourceFrame = isMobile
+      ? [...document.querySelectorAll('.home-logo')].find((element) => {
+        const bounds = element.getBoundingClientRect();
+        return bounds.width > 0 && bounds.height > 0 && bounds.bottom > 0 && bounds.top < window.innerHeight;
+      })
       : source;
-    const fromSrc = source?.getAttribute('src');
+    const fromSrc = sourceFrame?.querySelector('img')?.getAttribute('src') || source?.getAttribute('src');
     const toSrc = headerLogoForPath(path);
     closeMobileMenu();
     if (!source || !sourceFrame || fromSrc === toSrc || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -2489,8 +2502,21 @@ async function deleteProduct(product) {
       return;
     }
     const from = sourceFrame?.getBoundingClientRect();
-    if (!from.width || !from.height || from.bottom <= 0) {
+    if (!from?.width || !from.height || from.bottom <= 0) {
       navigatePublic(path);
+      return;
+    }
+    if (isMobile) {
+      logoBusyRef.current = true;
+      navigatePublic(path);
+      setLogoTransition({
+        phase: 'out',
+        mobile: true,
+        from: { left: from.left, top: from.top, width: from.width, height: from.height },
+        fromSrc,
+        toSrc,
+        path,
+      });
       return;
     }
     logoBusyRef.current = true;
@@ -2536,7 +2562,7 @@ async function deleteProduct(product) {
         className={`home-nav-item ${item.className} ${active === item.key ? 'is-active' : ''}`}
         href={item.href}
         key={item.key}
-        onClick={(event) => handlePublicNavClick(event, item.href)}
+        onClick={(event) => handlePublicNavClick(event, item.href, { animateLogo: false, animateLogoOnMobile: true })}
         >
         {item.label}
         </a>
@@ -2560,7 +2586,7 @@ async function deleteProduct(product) {
             <nav className="mobile-menu-links" aria-label="Navigazione mobile">
               {navItems.map((item) => (
                 <a key={item.key} href={item.href} aria-current={active === item.key ? 'page' : undefined}
-                  onClick={(event) => handlePublicNavClick(event, item.href)}>
+                  onClick={(event) => handlePublicNavClick(event, item.href, { animateLogo: false, animateLogoOnMobile: true })}>
                   {item.label}
                 </a>
               ))}
@@ -2750,9 +2776,6 @@ if (isShowroomPage) {
     <RevealLines lines={['Rendiamo', 'le tue idee', 'visualizzabili', 'con i render', 'realizzati su misura', 'dai nostri', 'professionisti.']} />
     </span>
     </h3>
-    <a className="showroom-renders-cta" href={firstShowroomRenderPath} onClick={(event) => openShowroomRender(event, firstShowroomRenderPath)}>
-    <RevealLines lines={['VISUALIZZA I RENDER']} />
-    </a>
     {latestShowroomRenders.length > 0 && (
       <div className="showroom-renders-collage" aria-label="Gli ultimi render dello showroom">
       {latestShowroomRenders.map((render) => {
@@ -2765,6 +2788,9 @@ if (isShowroomPage) {
       })}
       </div>
     )}
+    <a className="showroom-renders-cta" href={firstShowroomRenderPath} onClick={(event) => openShowroomRender(event, firstShowroomRenderPath)}>
+    <RevealLines lines={['VISUALIZZA I RENDER']} />
+    </a>
     </div>
     </section>
     <section className="showroom-info-section">

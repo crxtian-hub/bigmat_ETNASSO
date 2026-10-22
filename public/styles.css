@@ -2025,8 +2025,12 @@ a {
   position: absolute;
   z-index: 10000;
   overflow: hidden;
-  background: var(--surface);
+  background: transparent;
   pointer-events: none;
+}
+
+.header-logo-transition.is-mobile {
+  position: fixed;
 }
 
 .header-logo-transition img {
@@ -7032,14 +7036,14 @@ h3 {
   .home-brands-category > span {
     width: 100%;
     margin: 0 0 5vw;
-    text-align: center;
+    text-align: left;
   }
   
   .home-section-brands .home-brand-name {
     width: 100%;
     border-bottom: 0.2vw solid var(--ink);
     padding: 0.25vw 0;
-    text-align: center;
+    text-align: left;
   }
   
   .home-brand-name > a,
@@ -7282,6 +7286,10 @@ h3 {
     line-height: 1.02;
     text-align: center;
   }
+
+  .showroom-store-copy h3 {
+    font-size: 10vw;
+  }
   
   .showroom-store-copy p {
     grid-column: 1 / -1;
@@ -7292,7 +7300,8 @@ h3 {
   
   .showroom-renders-copy > .showroom-renders-cta {
     grid-column: 1 / -1;
-    margin-top: 8vw;
+    grid-row: 4;
+    margin-top: 10vw;
     font-size: 4vw;
     line-height: 1.15;
   }
@@ -8040,9 +8049,11 @@ h3 {
     width: 100%;
     height: 8vw;
   }
-  
-  .home-footer .home-footer-logo-habimat {
-    height: 6vw;
+
+  .home-footer .home-footer-logos-group img.home-footer-logo-habimat {
+    width: 70%;
+    height: auto;
+    justify-self: center;
   }
   
   .home-footer-credits {
@@ -8117,6 +8128,15 @@ h3 {
   .chi-siamo-section,
   .services-panel:not(.services-panel-half) {
     min-height: 100dvh;
+  }
+
+  .showroom-blank-section.showroom-store {
+    min-height: 0;
+    padding-bottom: 0;
+  }
+
+  .showroom-blank-section.showroom-renders-section {
+    padding-bottom: 0;
   }
   
   /* Let the tools section end at scroll_3 so the next 75px gap is exact. */
