@@ -2713,7 +2713,7 @@ if (isShowroomRenderPage) {
   return (
     <>
     {renderGridControls()}
-    <main className="showroom-render-page">
+    <main className={`showroom-render-page${renderTransition === 'closing' ? ' is-closing' : ''}`}>
     <button className="showroom-render-close" type="button" aria-label="Torna alla pagina precedente" title="Torna alla pagina precedente" onClick={() => closeShowroomRender()} disabled={Boolean(renderTransition)}>
     </button>
     <section className="showroom-render-gallery" aria-label="Render showroom" aria-busy={busy}>
