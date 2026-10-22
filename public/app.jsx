@@ -3433,7 +3433,7 @@ if (isPublicHome) {
     <RevealLines lines={['Trattiamo macchinari, dai', 'pesanti alle attrezzature', 'per alimentazione', 'o finiture.']} />
     </span>
     <span className="services-products-title-mobile">
-    <RevealLines lines={['Trattiamo macchinari,', 'dai pesanti alle attrezzature', 'per alimentazione', 'o finiture.']} />
+    <RevealLines lines={['Trattiamo macchinari,', 'dai pesanti', 'alle attrezzature', 'per alimentazione', 'o finiture.']} />
     </span>
     </h2>
     <p className="services-small-copy services-products-copy">

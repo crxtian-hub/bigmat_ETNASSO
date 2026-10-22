@@ -289,7 +289,7 @@ a {
     animation: none;
     transform: translateY(calc(-1 * var(--preloader-cube-lift) + var(--space-2) + var(--px) * 20)) scale(0.5);
   }
-
+  
   .preloader-logo-part,
   .preloader-logo-part img,
   .preloader-tagline .text-reveal-line-inner {
@@ -306,8 +306,8 @@ a {
   stroke-dasharray: 720;
   stroke-dashoffset: 720;
   animation:
-    preloaderDrawToCenter 1200ms cubic-bezier(0.77, 0, 0.18, 1) var(--preloader-line-delay, 0ms) forwards,
-    preloaderLinesOut 500ms ease 2680ms forwards;
+  preloaderDrawToCenter 1200ms cubic-bezier(0.77, 0, 0.18, 1) var(--preloader-line-delay, 0ms) forwards,
+  preloaderLinesOut 500ms ease 2680ms forwards;
 }
 
 .preloader-draw-line-2 {
@@ -420,25 +420,25 @@ a {
 /* On desktop only the desktop copy of responsive texts must be visible. */
 @media (min-width: 768px) {
   :is(
-    .home-mission-text-mobile,
-    .services-mobile-copy,
-    .services-tools-title-mobile,
-    .services-tools-copy-mobile,
-    .services-guidance-title-mobile,
-    .services-render-title-mobile,
-    .services-render-copy-mobile,
-    .services-products-title-mobile,
-    .services-products-copy-mobile,
-    .home-brands-mobile-label,
-    .showroom-hero-title-mobile,
-    .showroom-store-title-mobile,
-    .showroom-store-concepts-mobile,
-    .showroom-renders-title-mobile,
-    .noleggio-service-lead-mobile,
-    .edilizia-hero-title-mobile,
-    .edilizia-store-lead-mobile,
-    .edilizia-store-support-mobile,
-    .edilizia-color-title-mobile
+  .home-mission-text-mobile,
+  .services-mobile-copy,
+  .services-tools-title-mobile,
+  .services-tools-copy-mobile,
+  .services-guidance-title-mobile,
+  .services-render-title-mobile,
+  .services-render-copy-mobile,
+  .services-products-title-mobile,
+  .services-products-copy-mobile,
+  .home-brands-mobile-label,
+  .showroom-hero-title-mobile,
+  .showroom-store-title-mobile,
+  .showroom-store-concepts-mobile,
+  .showroom-renders-title-mobile,
+  .noleggio-service-lead-mobile,
+  .edilizia-hero-title-mobile,
+  .edilizia-store-lead-mobile,
+  .edilizia-store-support-mobile,
+  .edilizia-color-title-mobile
   ) {
     display: none !important;
   }
@@ -688,12 +688,12 @@ a {
     overflow-x: auto;
     scrollbar-width: thin;
   }
-
+  
   .client-reviews-track {
     animation: none;
     will-change: auto;
   }
-
+  
   .client-reviews-group[aria-hidden="true"] {
     display: none;
   }
@@ -945,7 +945,7 @@ a {
     padding-block: 4vw;
     font-size: 3vw;
   }
-
+  
   .company-details-bar > * {
     max-width: 100%;
     overflow-wrap: anywhere;
@@ -2006,7 +2006,7 @@ a {
 
 .home-logo img,
 .header-logo-transition img {
-  outline: 0.02vw solid #000;
+  outline: 0;
 }
 
 .home-logo img {
@@ -2193,28 +2193,28 @@ a {
     padding-top: max(56px, calc(var(--px) * 30));
     padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
   }
-
+  
   .showroom-render-gallery {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     row-gap: 20px;
   }
-
+  
   .showroom-render-image {
     align-items: center;
   }
-
+  
   .showroom-render-image img {
     width: 100%;
     height: 100%;
     max-height: 100%;
     object-position: center;
   }
-
+  
   .showroom-render-tags {
     top: 50%;
     transform: translate(-50%, -50%);
   }
-
+  
   .showroom-render-page .showroom-render-close {
     right: calc(var(--layout-margin) - 11px);
   }
@@ -2345,7 +2345,7 @@ a {
     transition: none;
     will-change: auto;
   }
-
+  
   .showroom-render-transition {
     animation-duration: 1ms;
   }
@@ -2762,30 +2762,30 @@ a {
   .showroom-renders-preview {
     transition: transform 300ms ease;
   }
-
+  
   .showroom-renders-preview:nth-child(3) {
     transition-delay: 70ms;
   }
-
+  
   .showroom-renders-preview:nth-child(4) {
     transition-delay: 140ms;
   }
-
+  
   .showroom-renders-collage:is(:hover, :focus-within) .showroom-renders-preview:nth-child(1),
   .showroom-renders-copy:has(> .showroom-renders-cta:is(:hover, :focus-visible)) .showroom-renders-preview:nth-child(1) {
     transform: none;
   }
-
+  
   .showroom-renders-collage:is(:hover, :focus-within) .showroom-renders-preview:nth-child(2),
   .showroom-renders-copy:has(> .showroom-renders-cta:is(:hover, :focus-visible)) .showroom-renders-preview:nth-child(2) {
     transform: translateY(calc(var(--px) * 12));
   }
-
+  
   .showroom-renders-collage:is(:hover, :focus-within) .showroom-renders-preview:nth-child(3),
   .showroom-renders-copy:has(> .showroom-renders-cta:is(:hover, :focus-visible)) .showroom-renders-preview:nth-child(3) {
     transform: translateY(calc(var(--px) * 12));
   }
-
+  
   .showroom-renders-collage:is(:hover, :focus-within) .showroom-renders-preview:nth-child(4),
   .showroom-renders-copy:has(> .showroom-renders-cta:is(:hover, :focus-visible)) .showroom-renders-preview:nth-child(4) {
     transform: translateY(calc(var(--px) * 12));
@@ -3153,7 +3153,7 @@ a {
     font-size: 4vw;
     line-height: 1.15;
   }
-
+  
 }
 
 .promozioni-page {
@@ -3767,6 +3767,7 @@ a {
   column-gap: var(--layout-gap);
   width: calc(100vw - var(--layout-margin) - var(--layout-margin));
   margin: var(--space-6) var(--layout-margin) 0;
+  padding-top: 20px;
 }
 
 .edilizia-store .home-section-title {
@@ -5812,7 +5813,6 @@ h3 {
   }
   
   .showroom-intro,
-  .edilizia-store,
   .edilizia-categories,
   .showroom-products,
   .edilizia-support,
@@ -5884,7 +5884,7 @@ h3 {
   .promozione-product-data {
     min-height: 0;
   }
-
+  
   .promozione-product-arrow {
     grid-column: 4 / 5;
     right: auto;
@@ -6000,7 +6000,7 @@ h3 {
     gap: var(--space-3);
     margin-top: var(--space-12);
   }
-
+  
   .backend-peoplelist-workspace {
     grid-column: 1;
   }
@@ -6064,7 +6064,7 @@ h3 {
     height: 100%;
     overflow: hidden;
   }
-
+  
   body.mobile-public-scroll #root {
     position: fixed;
     inset: 0;
@@ -6076,31 +6076,31 @@ h3 {
     padding-bottom: env(safe-area-inset-bottom, 0px);
     -webkit-overflow-scrolling: touch;
   }
-
+  
   :root {
     /* 2 × 72 + 4 × 238.506 + 3 × 36 = 1206.024 design units. */
     --layout-margin: calc(100vw * 72 / 1206.024);
     --layout-gap: calc(100vw * 36 / 1206.024);
     --layout-column: calc((100vw - 2 * var(--layout-margin) - 3 * var(--layout-gap)) / 4);
   }
-
+  
   .layout-grid-inner {
     --layout-margin: inherit;
     --layout-gap: inherit;
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-
+  
   .layout-grid-column:nth-child(n + 5) {
     display: none;
   }
-
+  
   .grid-toggle {
     display: grid;
     width: 11vw;
     height: 11vw;
     font-size: 4vw;
   }
-
+  
   .showroom-hero-copy,
   .showroom-intro,
   .edilizia-store-copy,
@@ -6117,7 +6117,7 @@ h3 {
     margin-inline: var(--layout-margin);
     column-gap: var(--layout-gap);
   }
-
+  
   /* Mobile dimensions use a 400px reference viewport. */
   .mobile-menu {
     --mobile-px: calc(100vw / 400);
@@ -6132,25 +6132,25 @@ h3 {
     color: var(--surface);
     transition: width 320ms ease;
   }
-
+  
   .mobile-menu.is-panel-open {
     width: calc(3 * var(--layout-column) + var(--mobile-menu-gap) - calc(var(--mobile-px) * 4));
   }
-
+  
   .mobile-menu.is-bottom-collapsed {
     width: 0;
     min-width: 0;
     overflow: hidden;
     transition: width 320ms ease 180ms;
   }
-
+  
   .mobile-menu.is-bottom-collapsed .mobile-menu-toggle > *,
   .mobile-menu.is-bottom-collapsed .mobile-menu-panel > * {
     opacity: 0;
     pointer-events: none;
     transition-delay: 0s;
   }
-
+  
   .mobile-menu-toggle {
     position: relative;
     overflow: hidden;
@@ -6172,7 +6172,7 @@ h3 {
     margin-inline: auto;
     transition: width 320ms ease, height 320ms ease, padding 320ms ease;
   }
-
+  
   .mobile-menu-toggle-label {
     position: absolute;
     top: 50%;
@@ -6186,11 +6186,11 @@ h3 {
     opacity: 1;
     transition: opacity 160ms ease 160ms;
   }
-
+  
   .mobile-menu-toggle-label.is-long {
     font-size: calc(var(--mobile-px) * 24);
   }
-
+  
   .mobile-menu-icon {
     position: absolute;
     top: 50%;
@@ -6204,7 +6204,7 @@ h3 {
     height: calc(var(--mobile-px) * 14);
     transition: right 320ms ease, width 320ms ease, height 320ms ease, opacity 180ms ease;
   }
-
+  
   .mobile-menu-icon i {
     position: absolute;
     left: 0;
@@ -6216,27 +6216,27 @@ h3 {
     transform: translateY(-50%);
     transition: top 320ms ease, transform 320ms ease, opacity 160ms ease;
   }
-
+  
   .mobile-menu-icon i:first-child {
     top: 0;
   }
-
+  
   .mobile-menu-icon i:last-child {
     top: 100%;
   }
-
+  
   .mobile-menu[data-phase="button-closing"] .mobile-menu-toggle,
   .mobile-menu[data-phase="button-closing"] .mobile-menu-icon,
   .mobile-menu[data-phase="button-closing"] .mobile-menu-icon i {
     transition-duration: 280ms;
   }
-
+  
   .mobile-menu[data-phase="panel-closing"] .mobile-menu-toggle,
   .mobile-menu[data-phase="panel-closing"] .mobile-menu-icon,
   .mobile-menu[data-phase="panel-closing"] .mobile-menu-icon i {
     transition-duration: 280ms;
   }
-
+  
   .mobile-menu-panel {
     position: absolute;
     bottom: 17.5vw;
@@ -6257,7 +6257,7 @@ h3 {
     transform-origin: bottom center;
     transition: clip-path 480ms cubic-bezier(0.65, 0, 0.35, 1), opacity 140ms ease 340ms, filter 300ms ease, visibility 0s 480ms;
   }
-
+  
   .mobile-menu.is-panel-open .mobile-menu-panel {
     opacity: 1;
     visibility: visible;
@@ -6266,31 +6266,31 @@ h3 {
     filter: blur(0);
     transition-delay: 0s;
   }
-
+  
   .mobile-menu-panel > :is(.mobile-menu-links, .mobile-menu-contact, .mobile-menu-social) {
     opacity: 0;
     transform: translateY(2vw);
     transition: opacity 140ms ease, transform 180ms ease;
   }
-
+  
   .mobile-menu.is-panel-open .mobile-menu-panel > :is(.mobile-menu-links, .mobile-menu-contact, .mobile-menu-social) {
     opacity: 1;
     transform: none;
     transition: opacity 240ms ease 280ms, transform 240ms ease 280ms;
   }
-
+  
   .mobile-menu-links {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
   }
-
+  
   .mobile-menu-links a {
     font-size: calc(var(--mobile-px) * 24);
     line-height: 1;
     letter-spacing: -0.02em;
   }
-
+  
   .mobile-menu-contact,
   .mobile-menu-social {
     display: flex;
@@ -6301,27 +6301,27 @@ h3 {
     line-height: 1.15;
     letter-spacing: -0.02em;
   }
-
+  
   .mobile-menu-contact {
     margin-top: 5vw;
   }
-
+  
   .mobile-menu-social {
     margin-top: 5vw;
   }
-
+  
   .mobile-menu-social a {
     display: inline-flex;
     align-items: center;
     gap: 1vw;
   }
-
+  
   .mobile-menu-social ion-icon {
     flex: 0 0 auto;
     font-size: 0.65em;
     transform: rotate(45deg);
   }
-
+  
   .mobile-menu.is-open .mobile-menu-toggle {
     position: relative;
     justify-content: center;
@@ -6330,44 +6330,44 @@ h3 {
     margin-inline: auto;
     padding: 0;
   }
-
+  
   .mobile-menu.is-open .mobile-menu-toggle-label {
     opacity: 0;
     pointer-events: none;
     transition-delay: 0s;
   }
-
+  
   .mobile-menu.is-open .mobile-menu-icon {
     right: calc(50% - 2.25vw);
     width: 4.5vw;
     height: 4.5vw;
   }
-
+  
   .mobile-menu.is-open .mobile-menu-icon i {
     position: absolute;
     top: 50%;
     transform: translateY(-50%) rotate(45deg);
   }
-
+  
   .mobile-menu.is-open .mobile-menu-icon i:nth-child(2) {
     opacity: 0;
   }
-
+  
   .mobile-menu.is-open .mobile-menu-icon i:last-child {
     transform: translateY(-50%) rotate(-45deg);
   }
-
+  
   .mobile-menu-links a[aria-current="page"] {
     color: var(--brand);
     text-decoration: none;
   }
-
+  
   .mobile-menu-toggle:focus-visible,
   .mobile-menu-links a:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
   }
-
+  
   .home-nav.home-nav {
     display: flex;
     align-items: center;
@@ -6379,35 +6379,40 @@ h3 {
     padding-bottom: 20px;
     gap: 0;
   }
-
+  
   .home-nav .home-nav-item {
     display: none;
   }
-
+  
   .home-nav.home-nav .home-logo {
     position: static;
     flex: 0 0 auto;
+    min-width: 0;
+    overflow: hidden;
     width: 144px;
     max-width: 100%;
     height: auto;
   }
-
+  
   .home-nav .home-logo img {
+    max-width: 100%;
     transform: none;
   }
-
+  
   .home-nav .home-logo img,
   .header-logo-transition img {
     box-sizing: border-box;
-    outline: 0.02vw solid #000;
+    outline: 0;
     border: 0;
+    box-shadow: none;
   }
-
+  
+  
   .home-section-hero {
     height: 100svh;
     min-height: 100svh;
   }
-
+  
   .home-hero-copy {
     top: 55vw;
     left: var(--layout-margin);
@@ -6416,13 +6421,13 @@ h3 {
     transform: none;
     text-align: left;
   }
-
+  
   .home-hero-copy h1 {
     display: flow-root;
     font-size: 10vw;
     line-height: 1.02;
   }
-
+  
   .home-hero-copy p {
     position: absolute;
     top: 100%;
@@ -6431,33 +6436,33 @@ h3 {
     font-size: 6vw;
     line-height: 1.1;
   }
-
+  
   .home-section-title.home-section-title {
     position: relative;
     display: block;
     width: calc(100vw - 2 * var(--layout-margin));
     margin: 0 var(--layout-margin);
-    padding-top: 25vw;
+    padding-top: 75px !important;
     padding-left: 4vw;
     font-size: 7vw;
     line-height: 1.05;
   }
-
+  
   .home-section-title.home-section-title::before {
     content: "";
     position: absolute;
-    top: calc(25vw + 0.38em);
+    top: calc(calc(100vw * 30 / 400) + 0.38em);
     left: 0;
     width: 0.18em;
     height: 0.18em;
     margin: 0;
   }
-
+  
   .home-section-title.home-section-title > span {
     display: block;
     margin-left: 0;
   }
-
+  
   .services-panel-title {
     display: block;
     width: calc(100vw - 2 * var(--layout-margin));
@@ -6466,12 +6471,12 @@ h3 {
     font-size: 7vw;
     line-height: 1.05;
   }
-
+  
   .services-panel-title::before {
     content: "";
     left: 0;
   }
-
+  
   .mission-composition {
     top: 35vw;
     left: var(--layout-margin);
@@ -6479,86 +6484,86 @@ h3 {
     font-size: 10vw;
     transform: none;
   }
-
+  
   .home-section-mission .home-mission-text {
     white-space: normal;
   }
-
+  
   .home-mission-text-desktop {
     display: none;
   }
-
+  
   .home-mission-text-mobile {
     display: block;
   }
-
+  
   .services-tools-title-desktop {
     display: none;
   }
-
+  
   .services-tools-title-mobile {
     display: block;
   }
-
+  
   .services-tools-copy-desktop {
     display: none;
   }
-
+  
   .services-tools-copy-mobile {
     display: block;
   }
-
+  
   .services-guidance-title-desktop {
     display: none;
   }
-
+  
   .services-guidance-title-mobile {
     display: block;
   }
-
+  
   .services-render-title-desktop {
     display: none;
   }
-
+  
   .services-render-title-mobile {
     display: block;
   }
-
+  
   .home-section-mission .home-mission-text .text-reveal-line {
     white-space: normal;
   }
-
+  
   .home-section-mission .home-mission-text .text-reveal-line:first-child {
     overflow: visible;
   }
-
+  
   .home-section-mission .home-section-title.home-section-title {
     display: flex;
     justify-content: center;
     align-items: flex-start;
     gap: 2vw;
-    padding-top: 18.75vw;
+    padding-top: calc(100vw * 30 / 400);
     padding-left: 0;
     text-align: center;
   }
-
+  
   .home-section-mission .home-section-title.home-section-title::before {
     position: static;
     flex: 0 0 auto;
     margin-top: 0.38em;
   }
-
+  
   .home-section-mission .mission-composition {
     position: relative;
     top: auto;
     left: auto;
     margin: 12.5vw var(--layout-margin) 0;
   }
-
+  
   .home-section-mission .home-mission-text {
     display: flow-root;
   }
-
+  
   .home-section-mission .mission-image {
     scale: 2;
     top: var(--mission-image-top);
@@ -6566,26 +6571,26 @@ h3 {
     right: auto;
     translate: -50% 0;
   }
-
+  
   .home-section-mission .mission-images {
     transform: translateY(2.5vw);
   }
-
+  
   .home-section-mission .mission-image-0 {
     --mission-image-top: 70.5vw;
     --mission-image-left: 63%;
   }
-
+  
   .home-section-mission .mission-image-1 {
     --mission-image-top: calc(67vw - var(--space-2) + 26vw);
     --mission-image-left: 75%;
   }
-
+  
   .home-section-mission .mission-image-2 {
     --mission-image-top: calc(85vw - var(--space-2) + 26vw);
     --mission-image-left: 55%;
   }
-
+  
   .home-section-mission .mission-image-3 {
     --mission-image-top: calc(106vw - var(--space-2) + 26vw);
     --mission-image-left: 75%;
@@ -6597,14 +6602,14 @@ h3 {
     min-height: 0;
     color: var(--surface);
   }
-
+  
   .services-carousel {
     position: relative;
     inset: auto;
     z-index: 1;
     pointer-events: auto;
   }
-
+  
   .services-track {
     display: flex;
     flex-direction: column;
@@ -6613,17 +6618,17 @@ h3 {
     overflow: visible;
     will-change: auto;
   }
-
+  
   .services-progress,
   .services-panel-half,
   .services-desktop-copy {
     display: none;
   }
-
+  
   .services-mobile-copy {
     display: block;
   }
-
+  
   .services-panel,
   .services-products-group {
     position: relative;
@@ -6635,7 +6640,7 @@ h3 {
     min-width: 0;
     color: var(--surface);
   }
-
+  
   .services-panel-intro > .services-panel-title {
     display: flex;
     align-items: flex-start;
@@ -6648,18 +6653,18 @@ h3 {
     line-height: 1.05;
     text-align: center;
   }
-
+  
   .services-panel-intro > .services-panel-title::before {
     position: static;
     flex: 0 0 auto;
     margin-top: 0.38em;
   }
-
+  
   .services-copy {
     display: contents;
     align-items: center;
   }
-
+  
   .services-copy p {
     position: static;
     width: calc(100vw - 2 * var(--layout-margin));
@@ -6669,7 +6674,7 @@ h3 {
     line-height: 1.02;
     text-align: left;
   }
-
+  
   .services-panel .services-text-title,
   .services-products-group .services-text-title {
     position: static;
@@ -6680,12 +6685,12 @@ h3 {
     line-height: 1.02;
     text-align: left;
   }
-
+  
   .services-panel .services-text-title::before,
   .services-products-group .services-text-title::before {
     content: none;
   }
-
+  
   .services-copy ul,
   .services-panel .services-small-list {
     position: static;
@@ -6697,24 +6702,25 @@ h3 {
     font-size: 4vw;
     line-height: 1.1;
     list-style: none;
-    text-align: left;
+    align-items: center;
+    text-align: center;
   }
-
+  
   .services-panel .services-small-copy,
   .services-products-group .services-small-copy {
     position: static;
     width: calc(100vw - 2 * var(--layout-margin));
     margin: 12.5vw auto;
-    padding: 0;
+    padding-top: 5px;
     font-size: 4.5vw;
     line-height: 1.25;
     text-align: left;
   }
-
+  
   .services-panel .services-tools-copy {
     margin-bottom: 12.5vw;
   }
-
+  
   .services-panel .services-edilizia-cta,
   .services-panel .services-showroom-cta,
   .services-panel .services-noleggio-cta,
@@ -6735,68 +6741,68 @@ h3 {
     font-size: 6vw;
     line-height: 1;
   }
-
+  
   .services-panel .services-edilizia-cta,
   .services-panel .services-showroom-cta,
   .services-panel .services-noleggio-cta {
     margin-top: 12.5vw;
     margin-bottom: 12.5vw;
   }
-
+  
   .services-panel-intro .services-edilizia-cta {
     order: 1;
     margin-top: 0;
     margin-bottom: 12.5vw;
   }
-
+  
   .services-panel-intro .services-copy ul {
     margin-bottom: 12.5vw;
   }
-
+  
   .services-panel-guidance .services-guidance-list {
     margin-top: 12.5vw;
     margin-bottom: 12.5vw;
   }
-
+  
   .services-panel-guidance .services-showroom-cta {
     order: 2;
     margin-top: 0;
     margin-bottom: 12.5vw;
   }
-
+  
   .services-panel-guidance .services-guidance-image-frame {
     order: -1;
     margin-top: calc(100vw * 100 / 640);
     margin-bottom: calc(100vw * 90 / 640);
   }
-
+  
   .services-panel-guidance > .services-text-title {
     margin-top: 0;
   }
-
+  
   .services-panel .services-render-cta ion-icon,
   .services-products-group .services-products-cta ion-icon {
     font-size: 4vw;
   }
-
+  
   .services-panel .services-render-cta > span,
   .services-products-group .services-products-cta > span {
     text-decoration: underline;
     text-underline-offset: 0.15em;
   }
-
+  
   .services-panel .services-render-cta,
   .services-products-group .services-products-cta {
     padding: 0;
     background: transparent;
     color: var(--surface);
   }
-
+  
   .services-panel .services-render-cta:is(:hover, :focus-visible),
   .services-products-group .services-products-cta:is(:hover, :focus-visible) {
     color: var(--brand);
   }
-
+  
   .services-panel .services-carousel-image-frame,
   .services-panel .services-tools-image-frame,
   .services-panel .services-guidance-image-frame,
@@ -6811,7 +6817,7 @@ h3 {
     margin: 0;
     overflow: hidden;
   }
-
+  
   .services-panel img,
   .services-products-group img {
     position: static;
@@ -6822,78 +6828,78 @@ h3 {
     object-fit: cover;
     object-position: center;
   }
-
+  
   /* Mobile guidance sequence: scroll_4, title, list, showroom, then the detail images. */
   .services-panel-guidance .services-guidance-image-frame {
     order: -1;
     margin-top: calc(100vw * 100 / 640);
     margin-bottom: calc(100vw * 90 / 640);
   }
-
+  
   .services-panel-guidance > .services-text-title {
     order: 0;
   }
-
+  
   .services-panel-guidance .services-guidance-list {
     order: 1;
   }
-
+  
   .services-panel-guidance .services-showroom-cta {
     order: 2;
   }
-
+  
   .services-panel-guidance .services-guidance-image-frame-small {
     order: 3;
   }
-
+  
   .services-panel-intro .services-carousel-image {
     object-position: 60% center;
   }
-
+  
   .services-carousel-image-frame picture {
     display: block;
     width: 100%;
     height: 100%;
   }
-
+  
   .services-panel-render {
     padding-bottom: 11vw;
   }
-
+  
   .services-panel-render .services-render-copy {
     margin-top: calc(100vw * 25 / 400);
   }
-
+  
   .services-panel-render .services-render-cta {
     font-size: 4vw;
     margin-bottom: calc(100vw * 50 / 640);
   }
-
+  
   .services-products-group .services-products-cta {
     font-size: 4vw;
     margin-bottom: 0;
   }
-
+  
   .services-products-group {
     padding-bottom: calc(100vw * 100 / 640);
   }
-
+  
   .services-panel-rental .services-rental-image-frame {
     order: -1;
   }
-
+  
   .services-panel-rental .services-rental-list {
     margin-bottom: 0;
   }
-
+  
   .services-panel-rental .services-noleggio-cta {
     margin-top: calc(100vw * 50 / 400);
   }
-
+  
   .services-products-group .services-products-image-frame {
     order: -1;
   }
-
+  
   .services-panel .services-tools-image-frame {
     align-self: flex-start;
     width: calc(3 * var(--layout-column) + 2 * var(--layout-gap));
@@ -6901,18 +6907,18 @@ h3 {
     aspect-ratio: 58 / 44;
     margin-left: var(--layout-margin);
   }
-
+  
   .services-panel .services-tools-image-frame-secondary {
     align-self: flex-end;
     width: calc(2 * var(--layout-column) + var(--layout-gap));
     height: calc(2 * var(--layout-column) + var(--layout-gap));
     margin: calc(-1 * var(--layout-column)) var(--layout-margin) 0 0;
   }
-
+  
   .services-panel-guidance > .services-text-title {
     margin-top: 0;
   }
-
+  
   .services-panel .services-guidance-image-frame-small-5 {
     align-self: flex-start;
     width: calc(3 * var(--layout-column) + 2 * var(--layout-gap));
@@ -6920,12 +6926,14 @@ h3 {
     aspect-ratio: 1600 / 1067;
     margin: calc(100vw * 10 / 640) 0 0 var(--layout-margin);
   }
-
+  
   .services-panel .services-guidance-image-frame-small-5 img {
     width: 100%;
-    object-fit: contain;
+    height: 100%;
+    object-fit: cover;
+    transform: none;
   }
-
+  
   .services-panel .services-guidance-image-frame-small-6 {
     align-self: flex-end;
     width: calc(2 * var(--layout-column) + var(--layout-gap));
@@ -6935,25 +6943,25 @@ h3 {
     margin-bottom: 0;
     margin-left: 0;
   }
-
+  
   .services-panel-guidance + .services-panel-render > .services-text-title {
     margin-top: calc(100vw * 75 / 640);
   }
-
+  
   .services-products-group .services-products-image-frame-8 {
     align-self: flex-start;
     width: calc(2 * var(--layout-column) + var(--layout-gap));
     height: 66vw;
     margin-left: var(--layout-margin);
   }
-
+  
   .services-products-group .services-products-image-frame-9 {
     align-self: flex-end;
     width: calc(3 * var(--layout-column) + 2 * var(--layout-gap));
     height: 45vw;
     margin: calc(-1 * var(--layout-column)) var(--layout-margin) 0 0;
   }
-
+  
   .services-products-group > .services-products-title {
     margin-top: calc(100vw * 50 / 400);
   }
@@ -6963,23 +6971,23 @@ h3 {
   .home-section-brands {
     padding-bottom: 20vw;
   }
-
+  
   .home-section-brands .home-section-title.home-section-title {
     display: flex;
     justify-content: center;
     align-items: flex-start;
     gap: 2vw;
-    padding-top: calc(100vw * 75 / 640);
+    padding-top: calc(100vw * 30 / 400);
     padding-left: 0;
     text-align: center;
   }
-
+  
   .home-section-brands .home-section-title.home-section-title::before {
     position: static;
     flex: 0 0 auto;
     margin-top: 0.38em;
   }
-
+  
   .home-section-clients .home-section-title.home-section-title {
     display: flex;
     justify-content: center;
@@ -6988,24 +6996,24 @@ h3 {
     padding-left: 0;
     text-align: center;
   }
-
+  
   .home-section-clients .home-section-title.home-section-title::before {
     position: static;
     flex: 0 0 auto;
     margin-top: 0.38em;
   }
-
+  
   .home-brands-subtitle,
   .home-brands-desktop-label,
   .home-section-brands .home-brand-image,
   .home-section-brands .home-brand-name ion-icon {
     display: none;
   }
-
+  
   .home-brands-mobile-label {
     display: block;
   }
-
+  
   .home-brands-categories {
     display: flex;
     flex-direction: column;
@@ -7015,24 +7023,25 @@ h3 {
     font-size: 4vw;
     line-height: 1.1;
   }
-
+  
   .home-brands-category {
     width: 100%;
     min-width: 0;
   }
-
+  
   .home-brands-category > span {
     width: 100%;
     margin: 0 0 5vw;
     text-align: center;
   }
-
+  
   .home-section-brands .home-brand-name {
     width: 100%;
     border-bottom: 0.2vw solid var(--ink);
     padding: 0.25vw 0;
+    text-align: center;
   }
-
+  
   .home-brand-name > a,
   .home-brand-name > span {
     display: block;
@@ -7044,53 +7053,61 @@ h3 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     margin-top: 5vw;
   }
-
+  
   .home-google-rating p {
     grid-column: 1 / -1;
     gap: 2vw;
     font-size: 3vw;
     line-height: 1.15;
   }
-
+  
   .home-google-rating img {
     width: 6vw;
     height: 6vw;
   }
-
+  
   .client-reviews {
     margin-top: 5vw;
   }
-
+  
+  .client-reviews-viewport {
+    box-sizing: border-box;
+    padding-inline: var(--layout-margin);
+  }
+  
   .client-review {
     flex-basis: calc(100vw - 2 * var(--layout-margin));
     min-height: 45vw;
     gap: 4vw;
     padding: 4vw;
+    text-align: center;
   }
-
+  
   .client-review-header {
     gap: 2vw;
+    justify-content: center;
   }
-
+  
   .client-review h3 {
     font-size: 4.5vw;
     line-height: 1.15;
   }
-
+  
   .client-review p {
     font-size: 4vw;
     line-height: 1.15;
   }
-
+  
   .client-review-rating,
   .client-review a {
     font-size: 3vw;
     line-height: 1.15;
   }
-
+  
   .client-review a {
     gap: 1vw;
     min-height: 8vw;
+    justify-self: center;
   }
 }
 
@@ -7102,7 +7119,7 @@ h3 {
     margin-top: 0;
     padding-top: 20vw;
   }
-
+  
   .showroom-info-section,
   .noleggio-info-section,
   .edilizia-info-section,
@@ -7110,7 +7127,7 @@ h3 {
     padding-top: 20vw;
     padding-bottom: 20vw;
   }
-
+  
   :is(.clients-brand-cta, .showroom-info-cta, .noleggio-info-cta, .edilizia-info-cta, .promozioni-info-cta) {
     position: relative;
     top: auto;
@@ -7125,13 +7142,13 @@ h3 {
     line-height: 1.05;
     text-align: left;
   }
-
+  
   :is(.clients-brand-cta, .showroom-info-cta, .noleggio-info-cta, .edilizia-info-cta, .promozioni-info-cta) > span {
     grid-column: 1 / -1;
     grid-row: auto;
     min-width: 0;
   }
-
+  
   :is(.clients-brand-cta, .showroom-info-cta, .noleggio-info-cta, .edilizia-info-cta, .promozioni-info-cta) small,
   :is(.clients-brand-cta, .showroom-info-cta, .noleggio-info-cta, .edilizia-info-cta, .promozioni-info-cta) a {
     margin-top: 4vw;
@@ -7139,24 +7156,24 @@ h3 {
     line-height: 1.15;
     gap: 1.5vw;
   }
-
+  
   :is(.clients-brand-cta, .showroom-info-cta, .noleggio-info-cta, .edilizia-info-cta, .promozioni-info-cta) small {
     margin-top: 8vw;
   }
-
+  
   :is(.clients-brand-cta, .showroom-info-cta, .noleggio-info-cta, .edilizia-info-cta, .promozioni-info-cta) a {
     min-height: 8vw;
   }
-
+  
   :is(.clients-brand-cta, .showroom-info-cta, .noleggio-info-cta, .edilizia-info-cta, .promozioni-info-cta) .contact-map-trigger {
     font-size: 4vw;
     line-height: 1.15;
   }
-
+  
   .home-section-clients {
     padding-bottom: calc(100vw * 75 / 640);
   }
-
+  
   .clients-map {
     grid-area: auto;
     left: auto;
@@ -7165,21 +7182,21 @@ h3 {
     height: 60vw;
     margin: 0 var(--layout-margin);
   }
-
+  
   .clients-map-frame {
     grid-column: 1 / -1;
     height: 60vw;
   }
-
+  
   .clients-map-marker strong {
     font-size: 3vw;
   }
-
+  
   .clients-map-marker span {
     width: 6.5vw;
     height: 6.5vw;
   }
-
+  
   .clients-map-marker span::after {
     inset: 1.75vw;
   }
@@ -7195,7 +7212,7 @@ h3 {
     height: 60vw;
     margin: 8vw var(--layout-margin) 0;
   }
-
+  
   .edilizia-info-map .clients-map-frame {
     grid-column: 1 / -1;
   }
@@ -7206,7 +7223,7 @@ h3 {
     height: 100svh;
     min-height: 100svh;
   }
-
+  
   .showroom-blank-hero-copy {
     top: 55vw;
     left: var(--layout-margin);
@@ -7215,20 +7232,20 @@ h3 {
     transform: none;
     text-align: left;
   }
-
+  
   .showroom-blank-hero-copy h1 {
     display: flow-root;
     font-size: 10vw;
     line-height: 1.02;
   }
-
+  
   .showroom-store,
   .showroom-products-section,
   .showroom-renders-section {
     min-height: 0;
     padding-bottom: 20vw;
   }
-
+  
   :is(.showroom-blank-page, .edilizia-page) .home-section-title.home-section-title {
     display: flex;
     justify-content: center;
@@ -7239,12 +7256,16 @@ h3 {
     text-align: center;
   }
 
+  .edilizia-page .home-section-title.home-section-title {
+    padding-top: 75px !important;
+  }
+  
   :is(.showroom-blank-page, .edilizia-page) .home-section-title.home-section-title::before {
     position: static;
     flex: 0 0 auto;
     margin-top: 0.38em;
   }
-
+  
   .showroom-store-copy,
   .showroom-renders-copy {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -7252,7 +7273,7 @@ h3 {
     margin: 7.5vw var(--layout-margin) 0;
     gap: 0 var(--layout-gap);
   }
-
+  
   .showroom-store-copy h3,
   .showroom-renders-copy h3 {
     grid-column: 1 / -1;
@@ -7261,33 +7282,33 @@ h3 {
     line-height: 1.02;
     text-align: center;
   }
-
+  
   .showroom-store-copy p {
     grid-column: 1 / -1;
     margin-top: 8vw;
     font-size: 4.5vw;
     line-height: 1.15;
   }
-
+  
   .showroom-renders-copy > .showroom-renders-cta {
     grid-column: 1 / -1;
     margin-top: 8vw;
     font-size: 4vw;
     line-height: 1.15;
   }
-
+  
   .showroom-renders-collage {
     --render-column-width: calc((100vw - 2 * var(--layout-margin) - 2 * var(--layout-gap)) / 3);
     grid-column: 1 / -1;
     grid-row: 3;
     margin-top: 10vw;
   }
-
+  
   :is(.showroom-products-section, .edilizia-categories) .edilizia-category-feature {
     margin-top: 12vw;
     padding-bottom: 0;
   }
-
+  
   /* Keep the desktop hover expansion out of the mobile product grid. */
   .edilizia-category-feature,
   .edilizia-category-feature article,
@@ -7295,18 +7316,19 @@ h3 {
     transform: none !important;
     transition: none;
   }
-
+  
   .edilizia-category-feature .edilizia-category-group + .edilizia-category-group {
     margin-top: 16vw;
   }
-
+  
   .edilizia-category-feature .edilizia-category-group h3 {
-    font-size: 7vw;
-    line-height: 1.05;
+    font-size: 4vw;
+    line-height: 1.2;
     overflow-wrap: anywhere;
+    text-transform: uppercase;
     text-align: center;
   }
-
+  
   .edilizia-category-feature .edilizia-category-images {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -7314,13 +7336,13 @@ h3 {
     min-height: 0;
     margin-top: 6vw;
   }
-
+  
   :is(.showroom-products-section, .edilizia-categories) .edilizia-category-feature .edilizia-category-images article {
     width: auto;
     height: auto;
     transition: none;
   }
-
+  
   :is(.showroom-products-section, .edilizia-categories) .edilizia-category-feature .edilizia-category-images article > a,
   :is(.showroom-products-section, .edilizia-categories) .edilizia-category-feature .edilizia-category-images .edilizia-category-link {
     position: static;
@@ -7328,7 +7350,7 @@ h3 {
     cursor: pointer;
     transition: none;
   }
-
+  
   :is(.showroom-products-section, .edilizia-categories) .edilizia-category-feature a > span,
   :is(.showroom-products-section, .edilizia-categories) .edilizia-category-feature .edilizia-category-link > span {
     margin-top: 2vw;
@@ -7338,33 +7360,33 @@ h3 {
     text-align: left;
     transition: none;
   }
-
+  
   .edilizia-category-feature :is(strong, em) {
     font-size: 4vw;
     line-height: 1.05;
     overflow-wrap: anywhere;
   }
-
+  
   .edilizia-category-feature a > ion-icon {
     display: none;
   }
-
+  
   .edilizia-category-feature .edilizia-more-products {
     margin-top: 12vw;
     padding: 3vw 0;
     gap: 2vw;
     font-size: 4vw;
   }
-
+  
   .edilizia-more-products .edilizia-more-products-label::before,
   .edilizia-more-products .edilizia-more-products-label::after {
     width: 6vw;
   }
-
+  
   .edilizia-more-products .edilizia-more-products-label::before {
     right: calc(100% + 2vw);
   }
-
+  
   .edilizia-more-products .edilizia-more-products-label::after {
     left: calc(100% + 2vw);
   }
@@ -7374,12 +7396,12 @@ h3 {
   .showroom-blank-page {
     min-height: 100svh;
   }
-
+  
   .edilizia-page .showroom-hero {
     height: 100svh;
     min-height: 100svh;
   }
-
+  
   .edilizia-hero-copy {
     top: 55vw;
     left: var(--layout-margin);
@@ -7389,72 +7411,82 @@ h3 {
     transform: none;
     text-align: left;
   }
-
+  
   .edilizia-hero-copy h1 {
     display: flow-root;
     font-size: 10vw;
     line-height: 1.02;
   }
-
+  
   .edilizia-store,
   .edilizia-categories {
-    min-height: 0;
-    padding-bottom: 20vw;
+    height: fit-content!important;
+    padding-bottom: 0;
   }
 
+  .edilizia-store {
+    min-height: 0;
+  }
+  
   .edilizia-store-copy {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     width: calc(100vw - 2 * var(--layout-margin));
     margin: 7.5vw var(--layout-margin) 0;
   }
-
+  
   .edilizia-store-lead {
     grid-column: 1 / -1;
     display: flow-root;
-    font-size: 7vw;
+    font-size: 10vw;
     line-height: 1.02;
     text-align: center;
   }
-
+  
   .edilizia-store-support {
     grid-column: 1 / -1;
     margin-top: 8vw;
     font-size: 4.5vw;
     line-height: 1.15;
   }
-
+  
   .edilizia-color-center {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     min-height: 0;
-    gap: 8vw var(--layout-gap);
+    row-gap: 50px;
+    column-gap: var(--layout-gap);
     padding-top: 15vw;
     padding-bottom: 0;
   }
-
+  
   .edilizia-color-center h2 {
     grid-column: 1 / -1;
-    font-size: 7vw;
+    font-size: 10vw;
     line-height: 1.02;
     text-align: center;
   }
-
+  
   .edilizia-color-image {
     position: static;
+    grid-column: 1 / -1;
+    justify-self: start;
+    width: calc(2.5 * var(--layout-column) + 1.5 * var(--layout-gap));
+    height: auto;
+    aspect-ratio: 1600 / 1426;
+  }
+  
+  .edilizia-color-image-secondary {
     grid-column: 2 / -1;
     width: 100%;
-    height: 50vw;
-  }
-
-  .edilizia-color-image-secondary {
-    grid-column: 1 / -1;
     margin-top: -18vw;
     height: auto;
     aspect-ratio: 1600 / 1067;
   }
-
+  
   .edilizia-color-image-tertiary {
-    grid-column: 1 / 4;
+    grid-column: 2 / 4;
+    width: 100%;
     margin-top: -18vw;
+    transform: translateX(calc((var(--layout-column) + var(--layout-gap)) / 2));
     height: auto;
     aspect-ratio: 1600 / 1067;
   }
@@ -7476,12 +7508,12 @@ h3 {
   .noleggio-page {
     min-height: 100svh;
   }
-
+  
   .noleggio-hero {
     height: 100svh;
     min-height: 100svh;
   }
-
+  
   .noleggio-hero-copy {
     top: 55vw;
     left: var(--layout-margin);
@@ -7491,18 +7523,18 @@ h3 {
     transform: none;
     text-align: left;
   }
-
+  
   .noleggio-hero-copy h1 {
     display: flow-root;
     font-size: 10vw;
     line-height: 1.02;
   }
-
+  
   .noleggio-blank-section {
     min-height: 0;
     padding-bottom: 0;
   }
-
+  
   .noleggio-service-lead {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     width: calc(100vw - 2 * var(--layout-margin));
@@ -7512,22 +7544,22 @@ h3 {
     line-height: 1.02;
     text-align: center;
   }
-
+  
   .noleggio-service-lead .text-reveal-line {
     grid-column: 1 / -1;
   }
-
+  
   .noleggio-service-lead-desktop {
     display: none !important;
   }
-
+  
   .noleggio-service-lead-mobile {
     display: block !important;
     grid-column: 1 / -1;
     width: 100%;
     text-align: center;
   }
-
+  
   .noleggio-page .home-section-title.home-section-title {
     display: flex;
     justify-content: center;
@@ -7537,25 +7569,25 @@ h3 {
     padding-left: 0;
     text-align: center;
   }
-
+  
   .noleggio-page .home-section-title.home-section-title::before {
     position: static;
     flex: 0 0 auto;
     margin-top: 0.38em;
   }
-
+  
   .noleggio-product-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12vw var(--layout-gap);
     margin-top: 10vw;
   }
-
+  
   .noleggio-product-item {
     grid-column: 1 / -1;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 3vw var(--layout-gap);
   }
-
+  
   .noleggio-product-item img {
     grid-column: 1 / -1;
     grid-row: 1;
@@ -7563,7 +7595,7 @@ h3 {
     width: 100%;
     height: 65vw;
   }
-
+  
   .noleggio-product-data {
     grid-column: 1 / -1;
     grid-row: 2;
@@ -7573,28 +7605,28 @@ h3 {
     line-height: 1.15;
     overflow-wrap: anywhere;
   }
-
+  
   .noleggio-product-data h3 {
     font-size: 5.5vw;
     line-height: 1.05;
   }
-
+  
   .noleggio-product-brand {
     font-size: 4vw;
     line-height: 1.15;
   }
-
+  
   .noleggio-product-description,
   .noleggio-product-prices {
     font-size: 3.5vw;
     line-height: 1.15;
   }
-
+  
   .noleggio-product-data .noleggio-product-prices {
     margin-top: 2vw;
     gap: 2vw;
   }
-
+  
   .noleggio-product-item .noleggio-product-arrow {
     position: static;
     grid-column: 4;
@@ -7605,7 +7637,7 @@ h3 {
     opacity: 1;
     visibility: visible;
   }
-
+  
   .noleggio-product-item:not(a) .noleggio-product-arrow {
     display: none;
   }
@@ -7615,16 +7647,16 @@ h3 {
   .promozioni-page {
     min-height: 100svh;
   }
-
+  
   .promozioni-products-section {
     padding-bottom: 0;
   }
-
+  
   .promozioni-hero {
     height: 100svh;
     min-height: 100svh;
   }
-
+  
   .promozioni-hero .promozioni-lead {
     top: 55vw;
     display: block;
@@ -7637,12 +7669,12 @@ h3 {
     transform: none;
     text-align: left;
   }
-
+  
   .promozioni-lead > span {
     grid-column: 1 / -1;
     display: flow-root;
   }
-
+  
   .promozioni-page .home-section-title.home-section-title {
     display: flex;
     justify-content: center;
@@ -7652,32 +7684,32 @@ h3 {
     padding-left: 0;
     text-align: center;
   }
-
+  
   .promozioni-page .home-section-title.home-section-title::before {
     position: static;
     flex: 0 0 auto;
     margin-top: 0.38em;
   }
-
+  
   .promozioni-product-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12vw var(--layout-gap);
     margin-top: 10vw;
   }
-
+  
   .promozione-product-item {
     grid-column: 1 / -1;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 3vw var(--layout-gap);
   }
-
+  
   .promozione-product-item img {
     grid-column: 1 / -1;
     grid-row: 1;
     width: 100%;
     height: 65vw;
   }
-
+  
   .promozione-product-data {
     grid-column: 1 / -1;
     grid-row: 2;
@@ -7686,25 +7718,25 @@ h3 {
     gap: 3vw;
     overflow-wrap: anywhere;
   }
-
+  
   .promozione-product-data h2 {
     font-size: 5.5vw;
     line-height: 1.05;
   }
-
+  
   .promozione-product-brand,
   .promozione-product-description {
     font-size: 4vw;
     line-height: 1.15;
   }
-
+  
   .promozione-product-data .promozione-product-prices {
     margin-top: 2vw;
     gap: 2vw;
     font-size: 4.5vw;
     line-height: 1.15;
   }
-
+  
   .promozione-product-item .promozione-product-arrow {
     position: static;
     grid-column: 4;
@@ -7715,11 +7747,11 @@ h3 {
     opacity: 1;
     visibility: visible;
   }
-
+  
   .promozione-product-item:not(a) .promozione-product-arrow {
     display: none;
   }
-
+  
   .promozioni-empty {
     grid-column: 1 / -1;
     font-size: 4vw;
@@ -7731,37 +7763,37 @@ h3 {
   .chi-siamo-hero {
     padding-bottom: 20vw;
   }
-
+  
   .chi-siamo-intro {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     padding-top: 55vw;
   }
-
+  
   .chi-siamo-intro h1 {
     grid-column: 1 / -1;
     display: flow-root;
     font-size: 10vw;
     line-height: 1.02;
   }
-
+  
   .chi-siamo-story {
     grid-column: 1 / -1;
     grid-row: auto;
     min-width: 0;
     margin-top: 10vw;
   }
-
+  
   .chi-siamo-story p {
     display: flow-root;
     font-size: 4.25vw;
     line-height: 1.15;
   }
-
+  
   .chi-siamo-story p + p,
   .chi-siamo-story .chi-siamo-motto {
     margin-top: 3vw;
   }
-
+  
   .chi-siamo-story-images {
     top: auto;
     grid-column: 1 / -1;
@@ -7771,42 +7803,42 @@ h3 {
     height: auto;
     margin-top: 10vw;
   }
-
+  
   .chi-siamo-story-images img {
     position: relative;
     inset: auto;
     max-width: 100%;
   }
-
+  
   .chi-siamo-image-primary {
     align-self: flex-start;
     width: 70%;
     height: 42vw;
   }
-
+  
   .chi-siamo-image-secondary {
     align-self: flex-end;
     width: 62%;
     height: 40vw;
     margin-top: -8vw;
   }
-
+  
   .chi-siamo-values {
     row-gap: 6vw;
     margin-top: 16vw;
   }
-
+  
   .chi-siamo-value {
     font-size: 12vw;
     line-height: 1.02;
   }
-
+  
   .chi-siamo-intro .chi-siamo-values-copy {
     margin-top: 8vw;
     font-size: 7vw;
     line-height: 1.02;
   }
-
+  
   .chi-siamo-page .home-section-title.home-section-title {
     display: flex;
     justify-content: center;
@@ -7816,19 +7848,19 @@ h3 {
     padding-left: 0;
     text-align: center;
   }
-
+  
   .chi-siamo-page .home-section-title.home-section-title::before {
     position: static;
     flex: 0 0 auto;
     margin-top: 0.38em;
   }
-
+  
   .chi-siamo-team {
     height: auto;
     min-height: 0;
     padding-bottom: 30vw;
   }
-
+  
   .chi-siamo-reviews {
     margin-top: 0;
     padding-bottom: 0;
@@ -7839,22 +7871,22 @@ h3 {
   .chi-siamo-story {
     margin-top: 6vw;
   }
-
+  
   .showroom-store-copy p,
   .edilizia-store-support {
-    margin-top: 4vw;
+    margin-top: 25px;
   }
-
+  
   .services-panel .services-small-copy,
   .services-products-group .services-small-copy {
     margin-top: 5vw;
     margin-bottom: 6vw;
   }
-
+  
   .services-panel .services-tools-copy {
     margin-bottom: 12.5vw;
   }
-
+  
   .chi-siamo-intro .chi-siamo-values-copy {
     margin-top: 4vw;
   }
@@ -7870,16 +7902,16 @@ h3 {
     transform: none;
     transition: none;
   }
-
+  
   .chi-siamo-story p > .text-reveal-line:not(:last-child)::after {
     content: " ";
   }
-
+  
   .chi-siamo-story p.text-mask-reveal {
     opacity: 0;
     transition: opacity 300ms ease;
   }
-
+  
   .chi-siamo-story p.is-text-revealed {
     opacity: 1;
   }
@@ -7895,11 +7927,11 @@ h3 {
   .chi-siamo-story p:not(.chi-siamo-motto) {
     text-indent: 1em;
   }
-
+  
   .chi-siamo-story p + p:not(.chi-siamo-motto) {
     margin-top: 1.5vw;
   }
-
+  
   .chi-siamo-story .chi-siamo-motto {
     margin-top: 6vw;
     text-indent: 0;
@@ -7911,28 +7943,28 @@ h3 {
     width: calc(100vw - 2 * var(--layout-margin));
     margin-inline: var(--layout-margin);
   }
-
+  
   .chi-siamo-founders img {
     height: auto;
     aspect-ratio: 510 / 480;
   }
-
+  
   .chi-siamo-team-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8vw var(--layout-gap);
     width: calc(100vw - 2 * var(--layout-margin));
     margin-inline: var(--layout-margin);
   }
-
+  
   .chi-siamo-team-person {
     grid-column: span 2;
   }
-
+  
   .chi-siamo-team-grid .chi-siamo-team-person img {
     height: auto;
     aspect-ratio: 260 / 300;
   }
-
+  
   .chi-siamo-team-person h3,
   .chi-siamo-team-person p {
     font-size: 4vw;
@@ -7954,7 +7986,7 @@ h3 {
   .home-footer-links {
     display: none !important;
   }
-
+  
   .home-footer {
     position: relative;
     display: flex;
@@ -7965,7 +7997,7 @@ h3 {
     min-height: 80svh;
     padding: 45vw var(--layout-margin) 8vw;
   }
-
+  
   .home-footer-links,
   .home-footer-logos,
   .home-footer-credits,
@@ -7977,49 +8009,49 @@ h3 {
     margin: 0;
     transform: none;
   }
-
+  
   .home-footer-links {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 2vw;
   }
-
+  
   .home-footer-links a {
     gap: 1vw;
     min-height: 44px;
     font-size: 3.6vw;
   }
-
+  
   .home-footer-logos {
     display: block;
   }
-
+  
   .home-footer-logos-group {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: center;
     gap: 5vw;
   }
-
+  
   .home-footer .home-footer-logos-group img {
     grid-column: auto;
     align-self: center;
     width: 100%;
     height: 8vw;
   }
-
+  
   .home-footer .home-footer-logo-habimat {
     height: 6vw;
   }
-
+  
   .home-footer-credits {
     font-size: 3.2vw;
     line-height: 1.6;
     text-align: center;
     white-space: normal;
   }
-
+  
   .home-footer-copyright {
     font-size: 3.6vw;
     line-height: 1.3;
@@ -8027,7 +8059,7 @@ h3 {
     white-space: normal;
     text-shadow: none;
   }
-
+  
   .home-footer .home-footer-copyright {
     position: absolute;
     top: 50%;
@@ -8040,7 +8072,7 @@ h3 {
     white-space: nowrap;
     transform: translateY(-50%) rotate(-90deg);
   }
-
+  
   .company-details-bar {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -8049,12 +8081,12 @@ h3 {
     font-size: 2.3vw;
     line-height: 1.4;
   }
-
+  
   .company-details-bar > * {
     white-space: nowrap;
     overflow-wrap: normal;
   }
-
+  
   .company-details-name { grid-column: 1 / 3; grid-row: 1; }
   .company-details-vat { grid-column: 3 / 7; grid-row: 1; }
   .company-details-pec { grid-column: 7 / 11; grid-row: 1; }
@@ -8068,14 +8100,13 @@ h3 {
     min-height: calc(100dvh + 35vw);
     padding-bottom: 50vh;
   }
-
+  
   .home-section:not(.home-section-brands),
   .showroom-blank-section:not(.showroom-blank-section-half),
   .showroom-hero,
   .noleggio-hero,
   .promozioni-hero,
   .showroom-intro,
-  .edilizia-store,
   .edilizia-categories,
   .edilizia-color-center,
   .showroom-products,
@@ -8087,33 +8118,36 @@ h3 {
   .services-panel:not(.services-panel-half) {
     min-height: 100dvh;
   }
-
+  
   /* Let the tools section end at scroll_3 so the next 75px gap is exact. */
   .services-panel.services-panel-tools {
     min-height: 0;
   }
-
+  
   .services-panel.services-panel-render {
     min-height: 0;
   }
-
+  
   :is(
-    .home-mission-text-desktop,
-    .services-tools-title-desktop,
-    .services-tools-copy-desktop,
-    .services-guidance-title-desktop,
-    .services-render-title-desktop,
-    .services-products-title-desktop,
-    .services-products-copy-desktop,
-    .edilizia-hero-title-desktop,
-    .edilizia-store-lead-desktop,
-    .edilizia-store-support-desktop,
-    .edilizia-color-title-desktop,
-    .showroom-hero-title-desktop,
-    .showroom-store-title-desktop,
-    .showroom-store-concepts-desktop,
-    .showroom-renders-title-desktop,
-    .noleggio-service-lead-desktop
+  .home-mission-text-desktop,
+  .services-desktop-copy,
+  .services-tools-title-desktop,
+  .services-tools-copy-desktop,
+  .services-guidance-title-desktop,
+  .services-render-title-desktop,
+  .services-render-copy-desktop,
+  .services-products-title-desktop,
+  .services-products-copy-desktop,
+  .home-brands-desktop-label,
+  .edilizia-hero-title-desktop,
+  .edilizia-store-lead-desktop,
+  .edilizia-store-support-desktop,
+  .edilizia-color-title-desktop,
+  .showroom-hero-title-desktop,
+  .showroom-store-title-desktop,
+  .showroom-store-concepts-desktop,
+  .showroom-renders-title-desktop,
+  .noleggio-service-lead-desktop
   ) {
     display: none !important;
   }
