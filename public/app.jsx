@@ -660,6 +660,8 @@ function App() {
   });
   const [mobileMenuPhase, setMobileMenuPhase] = useState('closed');
   const [mobileMenuBottomCollapsed, setMobileMenuBottomCollapsed] = useState(false);
+  const [mobileMenuPageClosing, setMobileMenuPageClosing] = useState(false);
+  const [mobileMenuRenderOpening, setMobileMenuRenderOpening] = useState('');
   const mobileMenuOpen = mobileMenuPhase !== 'closed';
   const mobileMenuButtonOpen = mobileMenuOpen && ['button-opening', 'panel-opening', 'open'].includes(mobileMenuPhase);
   const mobileMenuPanelOpen = ['panel-opening', 'open'].includes(mobileMenuPhase);
@@ -703,6 +705,10 @@ function App() {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const timer = window.setTimeout(() => setMobileMenuPhase(stage[1]), reducedMotion ? 0 : stage[0]);
     return () => window.clearTimeout(timer);
+  }, [mobileMenuPhase]);
+
+  useEffect(() => {
+    if (mobileMenuPhase === 'closed') setMobileMenuPageClosing(false);
   }, [mobileMenuPhase]);
 
   useEffect(() => {
@@ -776,6 +782,12 @@ function App() {
   const isPromozioniPage = publicPath === '/promozioni';
   const isChiSiamoPage = publicPath === '/chi-siamo';
   const isPublicHome = !isAdminPage && !isPreloaderPage && !isEdiliziaPage && !isShowroomPage && !isShowroomRenderPage && !isNoleggioPage && !isPromozioniPage && !isChiSiamoPage;
+
+  useLayoutEffect(() => {
+    if (mobileMenuRenderOpening !== 'pending' || isShowroomRenderPage) return undefined;
+    const frame = window.requestAnimationFrame(() => setMobileMenuRenderOpening('opening'));
+    return () => window.cancelAnimationFrame(frame);
+  }, [mobileMenuRenderOpening, isShowroomRenderPage]);
 
   useEffect(() => {
     if (initialPreloaderPhase !== 'visible') return undefined;
@@ -936,6 +948,9 @@ function App() {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     if (renderTransitionRef.current) return;
+    setMobileMenuPageClosing(false);
+    setMobileMenuRenderOpening('');
+    closeMobileMenu();
     renderReturnScrollRef.current = getPageScrollTop();
     renderDestinationRef.current = path;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -948,6 +963,9 @@ function App() {
   function finishRenderClose() {
     if (renderTransitionRef.current !== 'closing') return;
     renderRestoreScrollRef.current = true;
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      setMobileMenuRenderOpening('pending');
+    }
     changeRenderTransition('uncovering');
     returnFromRender();
   }
@@ -2453,6 +2471,7 @@ async function deleteProduct(product) {
         setLogoTransition({ ...logoTransition, phase: 'resize' });
       }}
       onDone={() => { logoBusyRef.current = false; setLogoTransition(null); }} />}
+    {!isAdminPage && !isPreloaderPage && renderMobileMenu()}
     <button
     className="grid-toggle"
     type="button"
@@ -2482,6 +2501,11 @@ async function deleteProduct(product) {
     event.preventDefault();
     if (logoBusyRef.current) return;
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    const fromMobileMenu = isMobile && event.currentTarget?.closest('.mobile-menu');
+    if (fromMobileMenu) {
+      setMobileMenuPageClosing(true);
+      setMobileMenuRenderOpening('');
+    }
     if (!animateLogo && !(isMobile && animateLogoOnMobile)) {
       closeMobileMenu();
       navigatePublic(path);
@@ -2541,6 +2565,64 @@ async function deleteProduct(product) {
     }
   }
 
+  function renderMobileMenu() {
+    const navItems = [
+      { key: 'edilizia', label: 'EDILIZIA', href: '/edilizia' },
+      { key: 'showroom', label: 'SHOWROOM', href: '/showroom' },
+      { key: 'noleggio', label: 'NOLEGGIO', href: '/noleggio' },
+      { key: 'promozioni', label: 'PROMOZIONI', href: '/promozioni' },
+      { key: 'chi-siamo', label: 'CHI SIAMO', href: '/chi-siamo' },
+    ];
+    const active = {
+      '/edilizia': 'edilizia',
+      '/showroom': 'showroom',
+      '/noleggio': 'noleggio',
+      '/promozioni': 'promozioni',
+      '/chi-siamo': 'chi-siamo',
+    }[publicPath] || (isShowroomRenderPage ? 'showroom' : '');
+    const mobileMenuLabel = navItems.find((item) => item.key === active)?.label || 'MENU';
+
+    return ReactDOM.createPortal(
+      <div className={`mobile-menu${mobileMenuButtonOpen ? ' is-open' : ''}${mobileMenuPanelOpen ? ' is-panel-open' : ''}${mobileMenuBottomCollapsed ? ' is-bottom-collapsed' : ''}${mobileMenuPageClosing ? ' is-page-closing' : ''}${isShowroomRenderPage ? ' is-render-page' : ''}${renderTransition === 'covering' ? ' is-render-closing' : ''}${mobileMenuRenderOpening === 'pending' ? ' is-render-opening-pending' : ''}${mobileMenuRenderOpening === 'opening' ? ' is-render-opening' : ''}`}
+        onAnimationEnd={(event) => {
+          if (event.target === event.currentTarget && event.animationName === 'mobileMenuRenderOpen') {
+            setMobileMenuRenderOpening('');
+          }
+        }}
+        data-phase={mobileMenuPhase}
+        role={mobileMenuOpen ? 'dialog' : undefined} aria-modal={mobileMenuOpen ? true : undefined}
+        aria-label={mobileMenuOpen ? 'Menu principale' : undefined}>
+        <div id="mobile-menu-panel" className="mobile-menu-panel"
+          aria-hidden={!mobileMenuPanelOpen} inert={mobileMenuPanelOpen ? undefined : ''}>
+          <nav className="mobile-menu-links" aria-label="Navigazione mobile">
+            {navItems.map((item) => (
+              <a key={item.key} href={item.href} aria-current={active === item.key ? 'page' : undefined}
+                onClick={(event) => handlePublicNavClick(event, item.href, { animateLogo: false, animateLogoOnMobile: true })}>
+                {item.label}
+              </a>
+            ))}
+          </nav>
+          <address className="mobile-menu-contact">
+            <span>Via Paolo Borsellino, 2<br />89024 - Polistena (RC)</span>
+            <a href="tel:+390966941019">+39 0966 941019</a>
+          </address>
+          <div className="mobile-menu-social">
+            <a href="https://wa.me/390966941019" target="_blank" rel="noreferrer"><span>WHATSAPP</span><ion-icon name="arrow-up-sharp" aria-hidden="true"></ion-icon></a>
+            <a href="https://www.instagram.com/bigmat_etnasso/" target="_blank" rel="noreferrer"><span>INSTAGRAM</span><ion-icon name="arrow-up-sharp" aria-hidden="true"></ion-icon></a>
+            <a href="mailto:amministrazione.etnsrl@bigmat.it"><span>EMAIL</span><ion-icon name="arrow-up-sharp" aria-hidden="true"></ion-icon></a>
+          </div>
+        </div>
+        <button className="mobile-menu-toggle" type="button" aria-expanded={mobileMenuOpen}
+          aria-label={mobileMenuOpen ? 'Chiudi menu' : 'Apri menu'}
+          aria-controls="mobile-menu-panel"
+          onClick={() => mobileMenuPhase === 'closed' ? setMobileMenuPhase('button-opening') : closeMobileMenu()}>
+          <span className={`mobile-menu-toggle-label${mobileMenuLabel.length > 8 ? ' is-long' : ''}`}>{mobileMenuLabel}</span>
+          <span className="mobile-menu-icon" aria-hidden="true"><i /><i /><i /></span>
+        </button>
+      </div>, document.body, 'mobile-public-menu'
+    );
+  }
+
   function renderPublicNav({ active = '', logo = '/assets/logos/BigMat_ETN_Logo_Header.svg', logoAlt = 'BigMat ET Nasso', tone = 'default' } = {}) {
     const navItems = [
       { key: 'edilizia', label: 'EDILIZIA', href: '/edilizia', className: 'home-nav-edilizia' },
@@ -2549,8 +2631,6 @@ async function deleteProduct(product) {
       { key: 'promozioni', label: 'PROMOZIONI', href: '/promozioni', className: 'home-nav-promozioni' },
       { key: 'chi-siamo', label: 'CHI SIAMO', href: '/chi-siamo', className: 'home-nav-chi-siamo' },
     ];
-    const mobileMenuLabel = navItems.find((item) => item.key === active)?.label || 'MENU';
-
     return (
       <>
       <nav className={`home-nav ${tone === 'light' ? 'showroom-nav' : ''}`} aria-label="Navigazione principale">
@@ -2576,40 +2656,6 @@ async function deleteProduct(product) {
         });
       }}>CONTATTACI</a>
       </nav>
-      {ReactDOM.createPortal(
-        <div className={`mobile-menu${mobileMenuButtonOpen ? ' is-open' : ''}${mobileMenuPanelOpen ? ' is-panel-open' : ''}${mobileMenuBottomCollapsed ? ' is-bottom-collapsed' : ''}`}
-          data-phase={mobileMenuPhase}
-          role={mobileMenuOpen ? 'dialog' : undefined} aria-modal={mobileMenuOpen ? true : undefined}
-          aria-label={mobileMenuOpen ? 'Menu principale' : undefined}>
-            <div id="mobile-menu-panel" className="mobile-menu-panel"
-              aria-hidden={!mobileMenuPanelOpen} inert={mobileMenuPanelOpen ? undefined : ''}>
-            <nav className="mobile-menu-links" aria-label="Navigazione mobile">
-              {navItems.map((item) => (
-                <a key={item.key} href={item.href} aria-current={active === item.key ? 'page' : undefined}
-                  onClick={(event) => handlePublicNavClick(event, item.href, { animateLogo: false, animateLogoOnMobile: true })}>
-                  {item.label}
-                </a>
-              ))}
-            </nav>
-            <address className="mobile-menu-contact">
-              <span>Via Paolo Borsellino, 2<br />89024 - Polistena (RC)</span>
-              <a href="tel:+390966941019">+39 0966 941019</a>
-            </address>
-            <div className="mobile-menu-social">
-              <a href="https://wa.me/390966941019" target="_blank" rel="noreferrer"><span>WHATSAPP</span><ion-icon name="arrow-up-sharp" aria-hidden="true"></ion-icon></a>
-              <a href="https://www.instagram.com/bigmat_etnasso/" target="_blank" rel="noreferrer"><span>INSTAGRAM</span><ion-icon name="arrow-up-sharp" aria-hidden="true"></ion-icon></a>
-              <a href="mailto:amministrazione.etnsrl@bigmat.it"><span>EMAIL</span><ion-icon name="arrow-up-sharp" aria-hidden="true"></ion-icon></a>
-            </div>
-            </div>
-          <button className="mobile-menu-toggle" type="button" aria-expanded={mobileMenuOpen}
-            aria-label={mobileMenuOpen ? 'Chiudi menu' : 'Apri menu'}
-            aria-controls="mobile-menu-panel"
-            onClick={() => mobileMenuPhase === 'closed' ? setMobileMenuPhase('button-opening') : closeMobileMenu()}>
-            <span className={`mobile-menu-toggle-label${mobileMenuLabel.length > 8 ? ' is-long' : ''}`}>{mobileMenuLabel}</span>
-            <span className="mobile-menu-icon" aria-hidden="true"><i /><i /><i /></span>
-          </button>
-        </div>, document.body
-      )}
       </>
     );
   }

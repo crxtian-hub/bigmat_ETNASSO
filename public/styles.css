@@ -2194,6 +2194,7 @@ a {
 
 @media (max-width: 767px) {
   .showroom-render-page {
+    overflow: visible;
     padding-top: max(56px, calc(var(--px) * 30));
     padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
   }
@@ -2217,31 +2218,49 @@ a {
   .showroom-render-tags {
     top: 50%;
     transform: translate(-50%, -50%);
+    overflow: visible;
+  }
+
+  .showroom-render-image.is-ready:not(.is-closing) .showroom-render-tags {
+    clip-path: inset(-30px -100vw -120px -100vw);
   }
   
   .showroom-render-page .showroom-render-close {
+    top: 8.25px;
     right: calc(var(--layout-margin) - 11px);
+  }
+
+  .showroom-render-page .showroom-render-label {
+    position: absolute;
+    top: 25px;
+    left: var(--layout-margin);
+    z-index: 2;
   }
 }
 
 .showroom-render-tag {
   position: absolute;
   transform: translateX(-50%);
-  max-width: min(80vw, calc(var(--px) * 400));
+  max-width: none;
   padding: calc(var(--px) * 4) calc(var(--px) * 7);
   background: rgb(0 0 0 / 55%);
   color: var(--surface);
   font-size: max(12px, calc(var(--px) * 18));
   line-height: 1.2;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
   pointer-events: auto;
   transform-origin: 50% 0;
   animation: showroomRenderTagReveal 280ms cubic-bezier(0.2, 0.8, 0.3, 1) var(--tag-delay, 0ms) both;
 }
 
+@media (max-width: 767px) {
+  .showroom-render-tag {
+    padding-inline: 3px;
+  }
+}
+
 @keyframes showroomRenderTagReveal {
   0% { transform: translateX(-50%) scale(0.75); opacity: 0; }
-  70% { transform: translateX(-50%) scale(1.01); opacity: 1; }
   100% { transform: translateX(-50%) scale(1); opacity: 1; }
 }
 
@@ -2268,6 +2287,24 @@ a {
   font-size: calc(100vw * 16 / 1470);
   pointer-events: auto;
   transition: background-color 180ms ease;
+}
+
+@media (max-width: 767px) {
+  .showroom-render-tags-toggle {
+    bottom: 12.5px;
+    left: 12.5px;
+    width: 25px;
+    height: 25px;
+    font-size: 13px;
+  }
+
+  .showroom-render-tags-toggle .showroom-render-tags-icon {
+    width: 11px;
+    height: 12.64px;
+    max-width: none;
+    max-height: none;
+    aspect-ratio: 12.68 / 14.57;
+  }
 }
 
 .showroom-render-tags-toggle:hover {
@@ -6136,23 +6173,67 @@ h3 {
     color: var(--surface);
     transition: width 320ms ease;
   }
+
+  .mobile-menu.is-page-closing {
+    z-index: 10001;
+    pointer-events: none;
+  }
   
   .mobile-menu.is-panel-open {
     width: calc(3 * var(--layout-column) + var(--mobile-menu-gap) - calc(var(--mobile-px) * 4));
   }
   
-  .mobile-menu.is-bottom-collapsed {
+  .mobile-menu.is-bottom-collapsed,
+  .mobile-menu.is-render-page,
+  .mobile-menu.is-render-closing {
     width: 0;
     min-width: 0;
     overflow: hidden;
     transition: width 320ms ease 180ms;
   }
+
+  .mobile-menu.is-render-opening {
+    width: calc(3 * var(--layout-column) + var(--mobile-menu-gap) - calc(var(--mobile-px) * 4));
+    min-width: 0;
+    overflow: hidden;
+    animation: mobileMenuRenderOpen 360ms ease both;
+  }
+
+  .mobile-menu.is-render-opening-pending {
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
   
   .mobile-menu.is-bottom-collapsed .mobile-menu-toggle > *,
-  .mobile-menu.is-bottom-collapsed .mobile-menu-panel > * {
+  .mobile-menu.is-bottom-collapsed .mobile-menu-panel > *,
+  .mobile-menu.is-render-page .mobile-menu-toggle > *,
+  .mobile-menu.is-render-page .mobile-menu-panel > *,
+  .mobile-menu.is-render-closing .mobile-menu-toggle > *,
+  .mobile-menu.is-render-closing .mobile-menu-panel > * {
     opacity: 0;
     pointer-events: none;
     transition-delay: 0s;
+  }
+
+  .mobile-menu.is-render-opening .mobile-menu-toggle > * {
+    opacity: 1;
+    animation: mobileMenuRenderContent 180ms ease 160ms both;
+  }
+
+  .mobile-menu.is-render-opening-pending .mobile-menu-toggle > * {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @keyframes mobileMenuRenderOpen {
+    from { width: 0; }
+    to { width: calc(3 * var(--layout-column) + var(--mobile-menu-gap) - calc(var(--mobile-px) * 4)); }
+  }
+
+  @keyframes mobileMenuRenderContent {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
   
   .mobile-menu-toggle {
@@ -7288,6 +7369,10 @@ h3 {
   }
 
   .showroom-store-copy h3 {
+    font-size: 10vw;
+  }
+
+  .showroom-renders-copy .showroom-renders-title-mobile {
     font-size: 10vw;
   }
   
