@@ -2243,7 +2243,7 @@ a {
   transform: translateX(-50%);
   max-width: none;
   padding: calc(var(--px) * 4) calc(var(--px) * 7);
-  background: rgb(0 0 0 / 55%);
+  background: rgb(0 0 0 / 45%);
   color: var(--surface);
   font-size: max(12px, calc(var(--px) * 18));
   line-height: 1.2;
@@ -2264,8 +2264,20 @@ a {
   100% { transform: translateX(-50%) scale(1); opacity: 1; }
 }
 
+.showroom-render-tag-items.is-closing .showroom-render-tag {
+  animation: showroomRenderTagHide 220ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+@keyframes showroomRenderTagHide {
+  from { transform: translateX(-50%) scale(1); opacity: 1; }
+  to { transform: translateX(-50%) scale(0.75); opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .showroom-render-tag {
+    animation: none;
+  }
+  .showroom-render-tag-items.is-closing .showroom-render-tag {
     animation: none;
   }
 }
@@ -2281,7 +2293,7 @@ a {
   height: calc(100vw * 30 / 1470);
   border: 0;
   border-radius: 0;
-  background: rgb(0 0 0 / 65%);
+  background: rgb(0 0 0 / 45%);
   padding: 0;
   color: #fff;
   font-size: calc(100vw * 16 / 1470);
@@ -2298,12 +2310,13 @@ a {
     font-size: 13px;
   }
 
-  .showroom-render-tags-toggle .showroom-render-tags-icon {
+  .showroom-render-image .showroom-render-tags-toggle .showroom-render-tags-icon {
     width: 11px;
     height: 12.64px;
     max-width: none;
     max-height: none;
     aspect-ratio: 12.68 / 14.57;
+    opacity: 1;
   }
 }
 
@@ -2311,13 +2324,23 @@ a {
   background: var(--brand);
 }
 
-.showroom-render-tags-icon {
+.showroom-render-image .showroom-render-tags-icon {
   display: block;
   width: 1em;
-  height: 1em;
-  background: currentColor;
-  -webkit-mask: url("/assets/logos/Cubo_Tag.svg") center / contain no-repeat;
-  mask: url("/assets/logos/Cubo_Tag.svg") center / contain no-repeat;
+  height: auto;
+  aspect-ratio: 12.68 / 14.57;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+  opacity: 1;
+  clip-path: none;
+  transition: none;
+  cursor: default;
+}
+
+.showroom-render-image.is-ready:not(.is-closing) img.showroom-render-tags-icon {
+  clip-path: none;
 }
 
 .showroom-render-tags-toggle:focus-visible {
@@ -2333,7 +2356,7 @@ a {
   transform: translateX(-50%);
   border-right: max(5px, calc(var(--px) * 7)) solid transparent;
   border-left: max(5px, calc(var(--px) * 7)) solid transparent;
-  border-bottom: max(5px, calc(var(--px) * 7)) solid rgb(0 0 0 / 55%);
+  border-bottom: max(5px, calc(var(--px) * 7)) solid rgb(0 0 0 / 45%);
 }
 
 .showroom-render-tag:focus-visible {
@@ -2362,6 +2385,10 @@ a {
 }
 
 .showroom-render-transition.is-covering {
+  animation: showroomRenderCover 700ms cubic-bezier(0.76, 0, 0.24, 1) both;
+}
+
+.showroom-render-transition.is-closing {
   animation: showroomRenderCover 700ms cubic-bezier(0.76, 0, 0.24, 1) both;
 }
 
@@ -2421,8 +2448,8 @@ a {
 
 .showroom-render-navigation-icon {
   display: block;
-  width: max(20px, calc(var(--px) * 28));
-  height: max(20px, calc(var(--px) * 28));
+  width: 44px;
+  height: 44px;
   background: currentColor;
   -webkit-mask: url("/assets/logos/TornaSu_Arrow.svg") center / contain no-repeat;
   mask: url("/assets/logos/TornaSu_Arrow.svg") center / contain no-repeat;
@@ -2449,6 +2476,42 @@ a {
   font-size: max(20px, calc(var(--px) * 24));
 }
 
+.showroom-render-navigation button {
+  width: 44px;
+  height: 44px;
+}
+
+@media (max-width: 767px) {
+  .showroom-render-controls {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .showroom-render-navigation {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0 var(--layout-gap);
+    width: 100%;
+  }
+
+  .showroom-render-navigation-button-prev {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .showroom-render-navigation .showroom-render-indicators {
+    grid-column: 2 / 4;
+    justify-self: center;
+    gap: 6.75px;
+    max-width: none;
+  }
+
+  .showroom-render-navigation-button-next {
+    grid-column: 4;
+    justify-self: end;
+  }
+}
+
 .showroom-render-close {
   position: absolute;
   z-index: 2;
@@ -2466,7 +2529,7 @@ a {
   top: 50%;
   left: 50%;
   width: 70%;
-  height: max(1px, calc(var(--px) * 2));
+  height: 2.5px;
   background: currentColor;
   transform: translate(-50%, -50%) rotate(45deg);
 }

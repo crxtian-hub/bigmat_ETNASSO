@@ -469,7 +469,7 @@ function BackToTop() {
 }
 
 function RenderPageTransition({ phase, onComplete }) {
-  if (phase !== 'covering' && phase !== 'uncovering') {
+  if (phase !== 'covering' && phase !== 'closing' && phase !== 'uncovering') {
     return null;
   }
   return <div className={`showroom-render-transition is-${phase}`} aria-hidden="true" onAnimationEnd={(event) => {
@@ -482,11 +482,33 @@ function ShowroomRenderImage({ render, closing, onClosed }) {
   const [ready, setReady] = useState(false);
   const [imageBounds, setImageBounds] = useState(null);
   const [tagsVisible, setTagsVisible] = useState(false);
+  const [tagsClosing, setTagsClosing] = useState(false);
   const tagItemsId = `showroom-render-tag-items-${render.id}`;
+  const tagsAreVisible = tagsVisible && !closing;
+  const tagsAreMounted = !closing && (tagsVisible || tagsClosing);
 
   function toggleTags() {
-    if (ready && !closing) setTagsVisible((visible) => !visible);
+    if (!ready || closing) return;
+    if (tagsVisible) {
+      setTagsVisible(false);
+      setTagsClosing(true);
+    } else {
+      setTagsClosing(false);
+      setTagsVisible(true);
+    }
   }
+
+  useEffect(() => {
+    setTagsVisible(false);
+    setTagsClosing(false);
+  }, [render.id, render.image, closing]);
+
+  useEffect(() => {
+    if (!tagsClosing) return undefined;
+    const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220;
+    const timeout = window.setTimeout(() => setTagsClosing(false), duration);
+    return () => window.clearTimeout(timeout);
+  }, [tagsClosing]);
 
   useEffect(() => {
     const image = imageRef.current;
@@ -524,8 +546,8 @@ function ShowroomRenderImage({ render, closing, onClosed }) {
     decoding="async"
     role="button"
     tabIndex={ready && !closing ? 0 : -1}
-    aria-label={tagsVisible ? 'Nascondi tag prodotti sulla foto' : 'Mostra tag prodotti sulla foto'}
-    aria-pressed={tagsVisible}
+    aria-label={tagsAreVisible ? 'Nascondi tag prodotti sulla foto' : 'Mostra tag prodotti sulla foto'}
+    aria-pressed={tagsAreVisible}
     aria-controls={tagItemsId}
     onClick={toggleTags}
     onKeyDown={(event) => {
@@ -540,8 +562,8 @@ function ShowroomRenderImage({ render, closing, onClosed }) {
     />
     {imageBounds && (
       <div className="showroom-render-tags" style={imageBounds}>
-        <div id={tagItemsId} hidden={!tagsVisible}>
-        {(Array.isArray(render.renderTags) ? render.renderTags : []).map((tag, index) => {
+        <div id={tagItemsId} className={`showroom-render-tag-items${tagsClosing ? ' is-closing' : ''}`} aria-hidden={!tagsAreVisible}>
+        {tagsAreMounted && (Array.isArray(render.renderTags) ? render.renderTags : []).map((tag, index) => {
           if (!tag.brand && !tag.product) return null;
           let href;
           if (tag.link) {
@@ -559,10 +581,10 @@ function ShowroomRenderImage({ render, closing, onClosed }) {
         })}
         </div>
         <button className="showroom-render-tags-toggle" type="button"
-          aria-label={tagsVisible ? 'Nascondi tag prodotti' : 'Mostra tag prodotti'}
-          aria-pressed={tagsVisible} aria-controls={tagItemsId}
+          aria-label={tagsAreVisible ? 'Nascondi tag prodotti' : 'Mostra tag prodotti'}
+          aria-pressed={tagsAreVisible} aria-controls={tagItemsId}
           disabled={!ready || closing} onClick={toggleTags}>
-          <span className="showroom-render-tags-icon" aria-hidden="true"></span>
+          <img className="showroom-render-tags-icon" src="/assets/logos/Cubo_Tag.svg" alt="" aria-hidden="true" />
         </button>
       </div>
     )}
@@ -763,6 +785,7 @@ function App() {
   const renderReturnScrollRef = useRef(window.history.state?.renderReturn?.scrollY || 0);
   const renderHasReturnHistoryRef = useRef(Boolean(window.history.state?.renderReturn));
   const renderRestoreScrollRef = useRef(false);
+  const renderUncoverPendingRef = useRef(false);
   const renderCloseFromHistoryRef = useRef(false);
   const closeRenderRef = useRef(null);
   const activePathRef = useRef(currentPath);
@@ -963,10 +986,12 @@ function App() {
   function finishRenderClose() {
     if (renderTransitionRef.current !== 'closing') return;
     renderRestoreScrollRef.current = true;
+    renderUncoverPendingRef.current = true;
     if (window.matchMedia('(max-width: 767px)').matches) {
       setMobileMenuRenderOpening('pending');
     }
-    changeRenderTransition('uncovering');
+    // Keep the black cover in place while the destination mounts and its scroll is restored.
+    renderTransitionRef.current = 'uncovering';
     returnFromRender();
   }
 
@@ -993,6 +1018,8 @@ function App() {
     if (renderTransitionRef.current === 'covering') {
       changeRenderTransition('');
       navigatePublic(renderDestinationRef.current);
+    } else if (renderTransitionRef.current === 'closing') {
+      finishRenderClose();
     } else if (renderTransitionRef.current === 'uncovering') {
       changeRenderTransition('');
     }
@@ -1022,15 +1049,23 @@ function App() {
     if (isShowroomRenderPage || !renderRestoreScrollRef.current) return;
     renderRestoreScrollRef.current = false;
     let secondFrame = 0;
+    let uncoverFrame = 0;
     const firstFrame = window.requestAnimationFrame(() => {
       secondFrame = window.requestAnimationFrame(() => {
         window.ScrollTrigger?.refresh();
         scrollPageTo({ top: renderReturnScrollRef.current, left: 0, behavior: 'auto' });
+        if (renderUncoverPendingRef.current) {
+          uncoverFrame = window.requestAnimationFrame(() => {
+            renderUncoverPendingRef.current = false;
+            if (renderTransitionRef.current === 'uncovering') setRenderTransition('uncovering');
+          });
+        }
       });
     });
     return () => {
       window.cancelAnimationFrame(firstFrame);
       window.cancelAnimationFrame(secondFrame);
+      window.cancelAnimationFrame(uncoverFrame);
     };
   }, [currentPath, isShowroomRenderPage]);
   
@@ -2691,7 +2726,7 @@ if (isShowroomRenderPage) {
     <div className="showroom-render-controls">
     <nav className="showroom-render-navigation" aria-label="Seleziona render">
     {renders.length > 1 && (
-      <button type="button" aria-label="Render precedente" title="Render precedente" onClick={() => navigateRender(renderIndex - 1)} disabled={Boolean(renderTransition) || renderIndex <= 0}>
+      <button className="showroom-render-navigation-button showroom-render-navigation-button-prev" type="button" aria-label="Render precedente" title="Render precedente" onClick={() => navigateRender(renderIndex - 1)} disabled={Boolean(renderTransition) || renderIndex <= 0}>
       <span className="showroom-render-navigation-icon showroom-render-navigation-icon-prev" aria-hidden="true" />
       </button>
     )}
@@ -2707,7 +2742,7 @@ if (isShowroomRenderPage) {
       ))}
     </div>
     {renders.length > 1 && (
-      <button type="button" aria-label="Render successivo" title="Render successivo" onClick={() => navigateRender(renderIndex + 1)} disabled={Boolean(renderTransition) || renderIndex < 0 || renderIndex >= renders.length - 1}>
+      <button className="showroom-render-navigation-button showroom-render-navigation-button-next" type="button" aria-label="Render successivo" title="Render successivo" onClick={() => navigateRender(renderIndex + 1)} disabled={Boolean(renderTransition) || renderIndex < 0 || renderIndex >= renders.length - 1}>
       <span className="showroom-render-navigation-icon showroom-render-navigation-icon-next" aria-hidden="true" />
       </button>
     )}
