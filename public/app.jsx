@@ -2620,7 +2620,7 @@ if (isShowroomRenderPage) {
     <nav className="showroom-render-navigation" aria-label="Seleziona render">
     {renders.length > 1 && (
       <button type="button" aria-label="Render precedente" title="Render precedente" onClick={() => navigateRender(renderIndex - 1)} disabled={Boolean(renderTransition) || renderIndex <= 0}>
-      <img className="showroom-render-navigation-icon showroom-render-navigation-icon-prev" src="/assets/logos/TornaSu_Arrow.svg" alt="" aria-hidden="true" />
+      <span className="showroom-render-navigation-icon showroom-render-navigation-icon-prev" aria-hidden="true" />
       </button>
     )}
     <div className="showroom-render-indicators">
@@ -2636,7 +2636,7 @@ if (isShowroomRenderPage) {
     </div>
     {renders.length > 1 && (
       <button type="button" aria-label="Render successivo" title="Render successivo" onClick={() => navigateRender(renderIndex + 1)} disabled={Boolean(renderTransition) || renderIndex < 0 || renderIndex >= renders.length - 1}>
-      <img className="showroom-render-navigation-icon showroom-render-navigation-icon-next" src="/assets/logos/TornaSu_Arrow.svg" alt="" aria-hidden="true" />
+      <span className="showroom-render-navigation-icon showroom-render-navigation-icon-next" aria-hidden="true" />
       </button>
     )}
     </nav>
@@ -2936,7 +2936,7 @@ if (isPromozioniPage) {
       const ProductElement = productLink ? 'a' : 'article';
       return (
       <ProductElement
-      className="promozione-product-item"
+      className={`promozione-product-item${productLink ? ' is-linked' : ''}`}
       key={product.id}
       href={productLink || undefined}
       target={productLink ? '_blank' : undefined}
@@ -2954,7 +2954,7 @@ if (isPromozioniPage) {
         </p>
       )}
       </div>
-      <ion-icon class="promozione-product-arrow" name="arrow-up-sharp" aria-hidden="true"></ion-icon>
+      {productLink && <ion-icon class="promozione-product-arrow" name="arrow-up-sharp" aria-hidden="true"></ion-icon>}
       </ProductElement>
       );
     })}
@@ -3031,7 +3031,7 @@ if (isNoleggioPage) {
 
       return (
         <ProductElement
-        className="noleggio-product-item"
+        className={`noleggio-product-item${productLink ? ' is-linked' : ''}`}
         key={product.id}
         href={productLink || undefined}
         target={productLink ? '_blank' : undefined}
@@ -3052,7 +3052,7 @@ if (isNoleggioPage) {
           </p>
         )}
         </div>
-        <ion-icon class="noleggio-product-arrow" name="arrow-up-sharp" aria-hidden="true"></ion-icon>
+        {productLink && <ion-icon class="noleggio-product-arrow" name="arrow-up-sharp" aria-hidden="true"></ion-icon>}
         </ProductElement>
       );
     })}

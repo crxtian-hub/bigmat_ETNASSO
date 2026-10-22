@@ -410,7 +410,7 @@ a {
 
 @media (max-width: 767px) {
   .back-to-top {
-    right: calc(100vw * 25 / 400);
+    right: var(--layout-margin);
     bottom: calc(100vw * 40 / 400);
     width: calc(100vw * 46 / 400);
     height: calc(100vw * 46 / 400);
@@ -1601,8 +1601,11 @@ a {
 }
 
 .services-guidance-image-frame-small-5 img {
-  width: 100%;
-  object-fit: contain;
+  width: 125%;
+  height: 125%;
+  max-width: none;
+  object-fit: cover;
+  transform: translate(-11%, -13%);
 }
 
 .services-guidance-image-frame-small-6 {
@@ -2371,6 +2374,27 @@ a {
   gap: calc(var(--px) * 15);
 }
 
+.showroom-render-navigation button {
+  color: var(--surface);
+}
+
+.showroom-render-navigation-icon {
+  display: block;
+  width: max(20px, calc(var(--px) * 28));
+  height: max(20px, calc(var(--px) * 28));
+  background: currentColor;
+  -webkit-mask: url("/assets/logos/TornaSu_Arrow.svg") center / contain no-repeat;
+  mask: url("/assets/logos/TornaSu_Arrow.svg") center / contain no-repeat;
+}
+
+.showroom-render-navigation-icon-prev {
+  transform: rotate(-90deg);
+}
+
+.showroom-render-navigation-icon-next {
+  transform: rotate(90deg);
+}
+
 .showroom-render-controls button,
 .showroom-render-close {
   display: grid;
@@ -2450,10 +2474,20 @@ a {
   color: var(--brand);
 }
 
+.showroom-render-navigation button:hover:not(:disabled),
+.showroom-render-navigation button:focus-visible {
+  color: var(--surface);
+}
+
 .showroom-render-controls button:disabled,
 .showroom-render-close:disabled {
   opacity: 0.3;
   cursor: default;
+}
+
+.showroom-render-navigation button:disabled {
+  color: #58585d;
+  opacity: 1;
 }
 
 .showroom-blank-page {
@@ -3250,8 +3284,8 @@ a {
   transition: color 180ms ease;
 }
 
-.promozione-product-item:hover .promozione-product-data h2,
-.promozione-product-item:focus-within .promozione-product-data h2 {
+.promozione-product-item.is-linked:hover .promozione-product-data h2,
+.promozione-product-item.is-linked:focus-visible .promozione-product-data h2 {
   color: var(--brand);
 }
 
@@ -3503,13 +3537,15 @@ a {
   top: 0;
 }
 
-.noleggio-product-item:hover .noleggio-product-data h3,
-.noleggio-product-item:focus-within .noleggio-product-data h3 {
+.noleggio-product-item.is-linked:hover .noleggio-product-data h3,
+.noleggio-product-item.is-linked:focus-visible .noleggio-product-data h3 {
   color: var(--accent);
 }
 
-.noleggio-product-item:hover .noleggio-product-arrow,
-.promozione-product-item:hover .promozione-product-arrow {
+.noleggio-product-item.is-linked:hover .noleggio-product-arrow,
+.noleggio-product-item.is-linked:focus-visible .noleggio-product-arrow,
+.promozione-product-item.is-linked:hover .promozione-product-arrow,
+.promozione-product-item.is-linked:focus-visible .promozione-product-arrow {
   opacity: 1;
   visibility: visible;
 }
@@ -6085,19 +6121,34 @@ h3 {
   /* Mobile dimensions use a 400px reference viewport. */
   .mobile-menu {
     --mobile-px: calc(100vw / 400);
+    --mobile-menu-gap: calc(100vw * 12.5 / 400);
     position: fixed;
     z-index: 1000;
     bottom: calc(var(--mobile-px) * 40);
     left: 50%;
     display: block;
-    width: calc(3 * var(--layout-column) + 2 * var(--layout-gap) + 4vw);
+    width: calc(3 * var(--layout-column) + var(--mobile-menu-gap) - calc(var(--mobile-px) * 4));
     transform: translateX(-50%);
     color: var(--surface);
     transition: width 320ms ease;
   }
 
   .mobile-menu.is-panel-open {
-    width: calc(3 * var(--layout-column) + 2 * var(--layout-gap) + 4vw);
+    width: calc(3 * var(--layout-column) + var(--mobile-menu-gap) - calc(var(--mobile-px) * 4));
+  }
+
+  .mobile-menu.is-bottom-collapsed {
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+    transition: width 320ms ease 180ms;
+  }
+
+  .mobile-menu.is-bottom-collapsed .mobile-menu-toggle > *,
+  .mobile-menu.is-bottom-collapsed .mobile-menu-panel > * {
+    opacity: 0;
+    pointer-events: none;
+    transition-delay: 0s;
   }
 
   .mobile-menu-toggle {
@@ -6151,7 +6202,7 @@ h3 {
     flex: 0 0 auto;
     width: calc(var(--mobile-px) * 20);
     height: calc(var(--mobile-px) * 14);
-    transition: right 320ms ease, width 320ms ease, height 320ms ease;
+    transition: right 320ms ease, width 320ms ease, height 320ms ease, opacity 180ms ease;
   }
 
   .mobile-menu-icon i {
@@ -7959,13 +8010,7 @@ h3 {
   }
 
   .home-footer .home-footer-logo-habimat {
-    height: 6rivw;
-    transform: none;
-  }
-
-  .home-footer .home-footer-logo-bigmat,
-  .home-footer .home-footer-logo-bigrent {
-    height: 8vw;
+    height: 6vw;
   }
 
   .home-footer-credits {
