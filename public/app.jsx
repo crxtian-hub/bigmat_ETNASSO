@@ -151,8 +151,50 @@ function assetUrl(path) {
   if (!path) {
     return '';
   }
-  
+
   return path.startsWith('/') || path.startsWith('http') ? path : `/${path}`;
+}
+
+const preloadedImageAssets = new Map();
+
+function preloadImageAsset(path) {
+  const src = assetUrl(path);
+  if (!src) {
+    return Promise.resolve();
+  }
+
+  if (preloadedImageAssets.has(src)) {
+    return preloadedImageAssets.get(src);
+  }
+
+  const promise = new Promise((resolve) => {
+    const image = new Image();
+    let settled = false;
+    let timeoutId = 0;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      if (timeoutId) window.clearTimeout(timeoutId);
+      image.onload = null;
+      image.onerror = null;
+      resolve();
+    };
+    const decodeLoadedImage = () => {
+      if (typeof image.decode !== 'function') {
+        finish();
+        return;
+      }
+      image.decode().catch(() => {}).finally(finish);
+    };
+    image.onload = decodeLoadedImage;
+    image.onerror = finish;
+    timeoutId = window.setTimeout(finish, 5000);
+    image.src = src;
+    if (image.complete) decodeLoadedImage();
+  });
+
+  preloadedImageAssets.set(src, promise);
+  return promise;
 }
 
 function productSectionFromView(view) {
@@ -286,6 +328,7 @@ function headerLogoForPath(path) {
 
 function HeaderLogoTransition({ transition, onSwap, onDone }) {
   const rectangleRef = useRef(null);
+  const coverRef = useRef(null);
   const callbacksRef = useRef({ onSwap, onDone });
   callbacksRef.current = { onSwap, onDone };
 
@@ -294,24 +337,26 @@ function HeaderLogoTransition({ transition, onSwap, onDone }) {
     const animations = [];
     const nextFrame = () => new Promise((resolve) => window.requestAnimationFrame(resolve));
     async function waitForImage(image) {
-      if (!image || image.complete) return;
-      try {
-        await image.decode();
-      } catch {
-        await new Promise((resolve) => {
-          let settled = false;
-          const finish = () => {
-            if (settled) return;
-            settled = true;
-            image.removeEventListener('load', finish);
-            image.removeEventListener('error', finish);
-            resolve();
-          };
-          image.addEventListener('load', finish, { once: true });
-          image.addEventListener('error', finish, { once: true });
-          window.setTimeout(finish, 900);
-        });
-      }
+      if (!image) return;
+      await new Promise((resolve) => {
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timeout);
+          image.removeEventListener('load', decode);
+          image.removeEventListener('error', finish);
+          resolve();
+        };
+        const decode = () => {
+          if (typeof image.decode === 'function') image.decode().catch(() => {}).finally(finish);
+          else finish();
+        };
+        const timeout = window.setTimeout(finish, 2000);
+        image.addEventListener('load', decode, { once: true });
+        image.addEventListener('error', finish, { once: true });
+        if (image.complete) decode();
+      });
     }
     async function waitForBounds(selector, attempts = 24) {
       for (let attempt = 0; attempt < attempts; attempt += 1) {
@@ -331,18 +376,28 @@ function HeaderLogoTransition({ transition, onSwap, onDone }) {
     async function run() {
       const rectangle = rectangleRef.current;
       if (transition.phase === 'out') {
-        if (transition.mobile) {
-          const nextLogo = document.querySelector('.home-logo img');
-          await waitForImage(nextLogo);
-        }
-        await animate(rectangle, [{ clipPath: 'inset(0 0% 0 0)' }, { clipPath: 'inset(0 100% 0 0)' }], 360);
+        await waitForImage(rectangle.querySelector('img'));
+        if (cancelled) return;
+        await Promise.all([
+          animate(rectangle, [{ clipPath: 'inset(0 0% 0 0)' }, { clipPath: 'inset(0 100% 0 0)' }], transition.mobile ? 520 : 360),
+          transition.mobile
+            ? animate(coverRef.current, [{ opacity: 0 }, { opacity: 1 }], 520)
+            : Promise.resolve(),
+        ]);
         if (!cancelled) callbacksRef.current.onSwap();
         return;
+      }
+      // Let the destination commit and reset its scroll underneath the opaque cover.
+      if (transition.mobile) {
+        await nextFrame();
+        await nextFrame();
+        if (cancelled) return;
       }
       const targetSelector = transition.mobile || window.matchMedia('(max-width: 767px)').matches
         ? '.home-logo'
         : '.home-logo img';
       const { bounds: targetBounds } = await waitForBounds(targetSelector);
+      if (cancelled) return;
       if (!targetBounds || !targetBounds.width || !targetBounds.height) {
         callbacksRef.current.onDone();
         return;
@@ -357,12 +412,24 @@ function HeaderLogoTransition({ transition, onSwap, onDone }) {
         left: `${target.left}px`, top: `${target.top}px`,
         width: `${target.width}px`, height: `${target.height}px`,
       });
+      const visibleImages = transition.mobile
+        ? [...document.querySelectorAll('#root > main img')].filter((image) => {
+          const bounds = image.getBoundingClientRect();
+          return bounds.width > 0 && bounds.height > 0 && bounds.bottom > 0 && bounds.top < window.innerHeight;
+        })
+        : [];
       await Promise.all([
         waitForImage(rectangle.querySelector('img')),
         waitForImage(document.querySelector('.home-logo img')),
+        ...visibleImages.map(waitForImage),
       ]);
       if (cancelled) return;
-      await animate(rectangle, [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], 440);
+      await Promise.all([
+        animate(rectangle, [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], transition.mobile ? 620 : 440),
+        transition.mobile
+          ? animate(coverRef.current, [{ opacity: 1 }, { opacity: 0 }], 620)
+          : Promise.resolve(),
+      ]);
       // Keep the completed overlay until the actual header image has a painted frame.
       await new Promise((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
       if (!cancelled) callbacksRef.current.onDone();
@@ -375,10 +442,14 @@ function HeaderLogoTransition({ transition, onSwap, onDone }) {
   }, [transition]);
 
   return ReactDOM.createPortal(
+    <>
+    {transition.mobile && <div ref={coverRef} className="mobile-page-transition-cover" aria-hidden="true"
+      data-phase={transition.phase} style={{ opacity: transition.phase === 'out' ? 0 : 1 }} />}
     <div ref={rectangleRef} className={`header-logo-transition${transition.mobile ? ' is-mobile' : ''}`} data-phase={transition.phase} aria-hidden="true"
-      style={{ left: transition.from.left, top: transition.from.top, width: transition.from.width, height: transition.from.height, clipPath: transition.phase === 'out' ? 'inset(0 0% 0 0)' : 'inset(0 100% 0 0)' }}>
+      style={{ left: transition.from?.left ?? 0, top: transition.from?.top ?? 0, width: transition.from?.width ?? 0, height: transition.from?.height ?? 0, clipPath: transition.phase === 'out' ? 'inset(0 0% 0 0)' : 'inset(0 100% 0 0)' }}>
       <img src={transition.phase === 'out' ? transition.fromSrc : transition.toSrc} alt="" />
-    </div>, document.body
+    </div>
+    </>, document.body
   );
 }
 
@@ -715,6 +786,7 @@ function App() {
   const [mobileMenuPhase, setMobileMenuPhase] = useState('closed');
   const [mobileMenuBottomCollapsed, setMobileMenuBottomCollapsed] = useState(false);
   const [mobileMenuPageClosing, setMobileMenuPageClosing] = useState(false);
+  const [mobilePageTransitioning, setMobilePageTransitioning] = useState(false);
   const [mobileMenuRenderOpening, setMobileMenuRenderOpening] = useState('');
   const mobileMenuOpen = mobileMenuPhase !== 'closed';
   const mobileMenuButtonOpen = mobileMenuOpen && ['button-opening', 'panel-opening', 'open'].includes(mobileMenuPhase);
@@ -745,6 +817,14 @@ function App() {
       if (phase === 'button-opening' || phase === 'button-closing') return 'button-closing';
       return 'panel-closing';
     });
+  }
+
+  function startMobilePageTransition() {
+    setMobilePageTransitioning(true);
+  }
+
+  function finishMobilePageTransition() {
+    setMobilePageTransitioning(false);
   }
 
   useEffect(() => {
@@ -795,16 +875,23 @@ function App() {
         }
       }
     }
+    function handleOutsidePointerDown(event) {
+      if (event.target instanceof Element && !event.target.closest('.mobile-menu')) {
+        closeMobileMenu();
+      }
+    }
     function handleResize() {
       if (window.innerWidth >= 768) closeMobileMenu(true);
     }
     window.addEventListener('keydown', handleEscape);
+    document.addEventListener('pointerdown', handleOutsidePointerDown);
     window.addEventListener('resize', handleResize);
     return () => {
       document.body.style.overflow = previousOverflow;
       document.documentElement.style.overflow = previousHtmlOverflow;
       if (mobileScroller) mobileScroller.style.overflowY = previousScrollerOverflow;
       window.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('pointerdown', handleOutsidePointerDown);
       window.removeEventListener('resize', handleResize);
       document.querySelector('.mobile-menu-toggle')?.focus({ preventScroll: true });
     };
@@ -827,6 +914,8 @@ function App() {
   const categoryProductHover = useCategoryProductHover(currentPath);
   const [logoTransition, setLogoTransition] = useState(null);
   const logoBusyRef = useRef(false);
+  const publicNavigationIdRef = useRef(0);
+  const publicScrollResetRef = useRef(false);
   const publicPath = currentPath;
   const isEdiliziaPage = publicPath === '/edilizia';
   const isShowroomPage = publicPath === '/showroom';
@@ -894,6 +983,7 @@ function App() {
   const [authChecked, setAuthChecked] = useState(!isAdminPage);
   const [password, setPassword] = useState('');
   const [products, setProducts] = useState([]);
+  const publicCatalogPreloadRef = useRef(null);
   const [form, setForm] = useState(emptyForm);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('Tutte');
@@ -932,7 +1022,10 @@ function App() {
   useEffect(() => {
     function syncBackendView() {
       const path = window.location.pathname.replace(/\/+$/, '') || '/';
+      publicNavigationIdRef.current += 1;
+      publicScrollResetRef.current = false;
       logoBusyRef.current = false;
+      finishMobilePageTransition();
       setLogoTransition(null);
       homeServicesCleanupRef.current?.();
       if (activePathRef.current.startsWith('/showroom-render') && !path.startsWith('/showroom-render')) {
@@ -965,6 +1058,19 @@ function App() {
     return () => document.body.classList.remove('is-logo-transitioning');
   }, [Boolean(logoTransition)]);
 
+  useLayoutEffect(() => {
+    const isMobilePageTransition = mobilePageTransitioning
+      && window.matchMedia('(max-width: 767px)').matches;
+    document.body.classList.toggle('is-mobile-page-transitioning', isMobilePageTransition);
+    return () => document.body.classList.remove('is-mobile-page-transitioning');
+  }, [mobilePageTransitioning]);
+
+  useLayoutEffect(() => {
+    if (!publicScrollResetRef.current) return;
+    publicScrollResetRef.current = false;
+    scrollPageTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [currentPath]);
+
   function navigatePublic(path) {
     const normalizedPath = path.replace(/\/+$/, '') || '/';
     if (normalizedPath === currentPath) {
@@ -990,8 +1096,8 @@ function App() {
         : {}),
     };
     window.history[enteringRender && alreadyInRender ? 'replaceState' : 'pushState'](historyState, '', normalizedPath);
+    publicScrollResetRef.current = true;
     setCurrentPath(normalizedPath);
-    scrollPageTo({ top: 0, left: 0, behavior: 'auto' });
   }
 
   function changeRenderTransition(phase) {
@@ -2204,6 +2310,124 @@ const promozioniProducts = products.filter((product) => (
   && product.image
 ));
 
+async function preloadPublicCatalog() {
+  if (publicCatalogPreloadRef.current) {
+    return publicCatalogPreloadRef.current;
+  }
+
+  publicCatalogPreloadRef.current = (async () => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 5000);
+    try {
+      const response = await fetch(apiUrl, { signal: controller.signal });
+      const data = await response.json();
+      if (response.status === 401) {
+        setAuthenticated(false);
+        throw new Error('Sessione scaduta. Accedi di nuovo.');
+      }
+      if (!response.ok) {
+        throw new Error(data.error || 'Impossibile caricare il catalogo.');
+      }
+      const nextProducts = data.products || [];
+      setProducts(nextProducts);
+      return nextProducts;
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  })().finally(() => {
+    publicCatalogPreloadRef.current = null;
+  });
+
+  return publicCatalogPreloadRef.current;
+}
+
+function publicPageImageAssets(path, catalogProducts = products) {
+  const pathname = path.split('#')[0].replace(/\/+$/, '') || '/';
+  const catalogImagesForCategory = (category) => catalogProducts
+    .filter((product) => (product.category || '').toLowerCase() === category.toLowerCase() && product.image)
+    .map((product) => assetUrl(product.image));
+  const sharedAssets = [
+    '/assets/logos/BigMat_Logo_Footer.svg',
+    '/assets/logos/BigRent_Logo_Footer.svg',
+    '/assets/logos/HabiMat_Logo_Footer.svg',
+  ];
+  const routeAssets = {
+    '/': [
+      '/assets/home/fullscreenHome.jpeg',
+      '/assets/home/0.jpg',
+      '/assets/home/1.jpg',
+      '/assets/home/2.png',
+      '/assets/home/3.jpg',
+      ...Array.from({ length: 9 }, (_, index) => `/assets/home/scroll_${index + 1}.webp`),
+      '/assets/home/footerHome.jpg',
+      ...brandLists.showroom.map((brand) => assetUrl(brand.image)),
+      ...brandLists.rivendita.map((brand) => assetUrl(brand.image)),
+    ],
+    '/showroom': [
+      '/assets/home/headerShowroom.webp',
+      '/assets/home/footerShowroom.webp',
+      ...catalogImagesForCategory(productSections['showroom-prodotti'].category),
+    ],
+    '/noleggio': [
+      '/assets/home/headerNoleggio.webp',
+      '/assets/home/footerNoleggio.webp',
+      ...catalogImagesForCategory(productSections['noleggio-prodotti'].category),
+    ],
+    '/edilizia': [
+      '/assets/home/ediliziaHeader.webp',
+      '/assets/home/edilizia1.webp',
+      '/assets/home/edilizia2.webp',
+      '/assets/home/edilizia3.webp',
+      '/assets/home/ediliziaFooter.webp',
+      ...catalogImagesForCategory(productSections['edilizia-prodotti'].category),
+    ],
+    '/promozioni': [
+      '/assets/home/headerPromozioni.webp',
+      '/assets/home/footerPromozioni.webp',
+      ...catalogImagesForCategory(productSections['promozioni-prodotti'].category),
+    ],
+    '/chi-siamo': [
+      '/assets/home/chiSiamo1.webp',
+      '/assets/home/chiSiamo2.webp',
+      '/assets/home/Paride_Pino.webp',
+      '/assets/home/footerChiSiamo.webp',
+      ...catalogImagesForCategory(peopleSection.category),
+    ],
+  };
+  const renderAssets = pathname.startsWith('/showroom-render')
+    ? [
+      '/assets/home/headerShowroom.webp',
+      '/assets/home/footerShowroom.webp',
+      ...catalogImagesForCategory(renderSection.category),
+    ]
+    : [];
+  return [...new Set([
+    headerLogoForPath(path),
+    ...sharedAssets,
+    ...(routeAssets[pathname] || []),
+    ...renderAssets,
+  ].filter(Boolean))];
+}
+
+async function preloadPublicPage(path) {
+  const pathname = path.split('#')[0].replace(/\/+$/, '') || '/';
+  const needsCatalog = pathname === '/showroom'
+    || pathname === '/noleggio'
+    || pathname === '/edilizia'
+    || pathname === '/promozioni'
+    || pathname === '/chi-siamo'
+    || pathname.startsWith('/showroom-render');
+  let catalogProducts = products;
+  if (needsCatalog && catalogProducts.length === 0) {
+    try {
+      catalogProducts = await preloadPublicCatalog();
+    } catch {
+      // Static page assets still get preloaded if the catalog is unavailable.
+    }
+  }
+  await Promise.all(publicPageImageAssets(path, catalogProducts).map((src) => preloadImageAsset(src)));
+}
+
 useLayoutEffect(() => {
   if (initialPreloaderPhase !== 'done') return undefined;
   if ((!isPublicHome && !isChiSiamoPage && !isEdiliziaPage) || !('IntersectionObserver' in window)
@@ -2326,22 +2550,11 @@ useLayoutEffect(() => {
     revealElements.forEach((element) => {
       element.classList.add('is-text-revealed');
     });
-
-    return () => {
-      revealElements.forEach((element) => {
-        element.classList.remove('text-mask-reveal', 'is-text-revealed');
-        element.style.removeProperty('--text-reveal-delay');
-      });
-    };
+    return undefined;
   }
 
   if (prefersReducedMotion) {
-    return () => {
-      revealElements.forEach((element) => {
-        element.classList.remove('text-mask-reveal', 'is-text-revealed');
-        element.style.removeProperty('--text-reveal-delay');
-      });
-    };
+    return undefined;
   }
 
   let revealAnimationFrame = 0;
@@ -2369,7 +2582,7 @@ useLayoutEffect(() => {
     revealAnimationFrame = window.requestAnimationFrame(revealVisibleText);
   }
 
-  window.requestAnimationFrame(revealVisibleText);
+  revealAnimationFrame = window.requestAnimationFrame(revealVisibleText);
   const revealTimeout = window.setTimeout(revealVisibleText, 120);
   const scrollTarget = getMobilePublicScroller() || window;
   scrollTarget.addEventListener('scroll', scheduleRevealVisibleText, { passive: true });
@@ -2406,10 +2619,8 @@ useLayoutEffect(() => {
     if (revealAnimationFrame) {
       window.cancelAnimationFrame(revealAnimationFrame);
     }
-    revealElements.forEach((element) => {
-      element.classList.remove('text-mask-reveal', 'is-text-revealed');
-      element.style.removeProperty('--text-reveal-delay');
-    });
+    // Keep already-visible text revealed when catalog, brands or reviews refresh.
+    // Page roots are keyed by route, so a new page still starts with fresh nodes.
   };
 }, [
   isPublicHome,
@@ -2539,7 +2750,11 @@ async function deleteProduct(product) {
           ? { ...currentTransition, phase: 'resize' }
           : null);
       }}
-      onDone={() => { logoBusyRef.current = false; setLogoTransition(null); }} />}
+      onDone={() => {
+        logoBusyRef.current = false;
+        setLogoTransition(null);
+        finishMobilePageTransition();
+      }} />}
     {!isAdminPage && !isPreloaderPage && renderMobileMenu()}
     <button
     className="grid-toggle"
@@ -2569,47 +2784,60 @@ async function deleteProduct(product) {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0) return;
     event.preventDefault();
     if (logoBusyRef.current) return;
+    if (path === currentPath) {
+      closeMobileMenu();
+      scrollPageTo({ top: 0, left: 0, behavior: 'instant' });
+      return;
+    }
+    const navigationId = ++publicNavigationIdRef.current;
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const fromMobileMenu = isMobile && event.currentTarget?.closest('.mobile-menu');
+    const shouldAnimateLogo = animateLogo || (isMobile && animateLogoOnMobile);
     if (fromMobileMenu) {
       setMobileMenuPageClosing(true);
       setMobileMenuRenderOpening('');
     }
-    if (!animateLogo && !(isMobile && animateLogoOnMobile)) {
-      closeMobileMenu();
-      navigatePublic(path);
+    closeMobileMenu();
+    if (isMobile) {
+      logoBusyRef.current = true;
+      try {
+        await preloadPublicPage(path);
+        if (navigationId !== publicNavigationIdRef.current) return;
+        if (!shouldAnimateLogo || reducedMotion) {
+          logoBusyRef.current = false;
+          navigatePublic(path);
+          return;
+        }
+        // Measure only after preloading: the user may have scrolled in the meantime.
+        const sourceFrame = [...document.querySelectorAll('.home-logo')].find((element) => {
+          const bounds = element.getBoundingClientRect();
+          return bounds.width > 0 && bounds.height > 0 && bounds.bottom > 0 && bounds.top < window.innerHeight;
+        });
+        const from = sourceFrame?.getBoundingClientRect();
+        startMobilePageTransition();
+        setLogoTransition({
+          phase: 'out',
+          mobile: true,
+          from: from ? { left: from.left, top: from.top, width: from.width, height: from.height } : null,
+          fromSrc: sourceFrame?.querySelector('img')?.getAttribute('src') || headerLogoForPath(currentPath),
+          toSrc: headerLogoForPath(path),
+          path,
+        });
+      } catch {
+        if (navigationId !== publicNavigationIdRef.current) return;
+        logoBusyRef.current = false;
+        finishMobilePageTransition();
+        navigatePublic(path);
+      }
       return;
     }
     const source = document.querySelector('.home-logo img');
-    const sourceFrame = isMobile
-      ? [...document.querySelectorAll('.home-logo')].find((element) => {
-        const bounds = element.getBoundingClientRect();
-        return bounds.width > 0 && bounds.height > 0 && bounds.bottom > 0 && bounds.top < window.innerHeight;
-      })
-      : source;
-    const fromSrc = sourceFrame?.querySelector('img')?.getAttribute('src') || source?.getAttribute('src');
+    const fromSrc = source?.getAttribute('src');
     const toSrc = headerLogoForPath(path);
-    closeMobileMenu();
-    if (!source || !sourceFrame || fromSrc === toSrc || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const from = source?.getBoundingClientRect();
+    if (!shouldAnimateLogo || reducedMotion || !from?.width || !from.height || from.bottom <= 0 || fromSrc === toSrc) {
       navigatePublic(path);
-      return;
-    }
-    const from = sourceFrame?.getBoundingClientRect();
-    if (!from?.width || !from.height || from.bottom <= 0) {
-      navigatePublic(path);
-      return;
-    }
-    if (isMobile) {
-      logoBusyRef.current = true;
-      navigatePublic(path);
-      setLogoTransition({
-        phase: 'out',
-        mobile: true,
-        from: { left: from.left, top: from.top, width: from.width, height: from.height },
-        fromSrc,
-        toSrc,
-        path,
-      });
       return;
     }
     logoBusyRef.current = true;
@@ -2626,9 +2854,10 @@ async function deleteProduct(product) {
         image.src = src;
         await image.decode();
       }));
-      if (!logoBusyRef.current) return;
+      if (navigationId !== publicNavigationIdRef.current) return;
       setLogoTransition({ phase: 'out', from: { left: from.left + window.scrollX, top: from.top + getPageScrollTop(), width: from.width, height: from.height }, fromSrc, toSrc, path });
     } catch {
+      if (navigationId !== publicNavigationIdRef.current) return;
       logoBusyRef.current = false;
       navigatePublic(path);
     }
@@ -2747,7 +2976,7 @@ if (isShowroomRenderPage) {
   return (
     <>
     {renderGridControls()}
-    <main className={`showroom-render-page${renderTransition === 'closing' ? ' is-closing' : ''}`}>
+    <main key={currentPath} className={`showroom-render-page${renderTransition === 'closing' ? ' is-closing' : ''}`}>
     <button className="showroom-render-close" type="button" aria-label="Torna alla pagina precedente" title="Torna alla pagina precedente" onClick={() => closeShowroomRender()} disabled={Boolean(renderTransition)}>
     </button>
     <section className="showroom-render-gallery" aria-label="Render showroom" aria-busy={busy}>
@@ -2793,7 +3022,7 @@ if (isShowroomPage) {
   return (
     <>
     {renderGridControls()}
-    <main className="showroom-blank-page">
+    <main key={currentPath} className="showroom-blank-page">
     <section className="showroom-blank-section showroom-blank-section-hero">
     {renderPublicNav({
       active: 'showroom',
@@ -2953,12 +3182,12 @@ if (isChiSiamoPage) {
   return (
     <>
     {renderGridControls()}
-    <main className="chi-siamo-page">
+    <main key={currentPath} className="chi-siamo-page">
     <section className="chi-siamo-hero">
     {renderPublicNav({ active: 'chi-siamo' })}
     <div className="chi-siamo-intro">
     <h1>
-    <RevealLines lines={['Dal 1986 ad oggi,', 'con cura e passione,', 'siamo diventati', 'un punto di riferimento', 'nel nostro settore.']} />
+    <RevealLines lines={['Dal 1986 ad oggi,', 'con cura', 'e passione,', 'siamo diventati', 'un punto', 'di riferimento', 'nel nostro settore.']} />
     </h1>
     <div className="chi-siamo-story">
     <p>
@@ -3061,12 +3290,12 @@ if (isPromozioniPage) {
   return (
     <>
     {renderGridControls()}
-    <main className="promozioni-page">
+    <main key={currentPath} className="promozioni-page">
     <section className="promozioni-hero">
     <img className="promozioni-hero-image" src="/assets/home/headerPromozioni.webp" alt="" aria-hidden="true" />
     {renderPublicNav({ active: 'promozioni', tone: 'light' })}
     <h1 className="promozioni-lead">
-    <span><RevealLines lines={['Selezioniamo per te', 'i prezzi più vantaggiosi', 'senza perdere di vista', 'la qualità.']} /></span>
+    <span><RevealLines lines={['Selezioniamo', 'per te i prezzi', 'più vantaggiosi', 'senza perdere', 'di vista la qualità.']} /></span>
     </h1>
     </section>
     <section className="promozioni-products-section">
@@ -3132,7 +3361,7 @@ if (isNoleggioPage) {
   return (
     <>
     {renderGridControls()}
-    <main className="noleggio-page">
+    <main key={currentPath} className="noleggio-page">
     <section className="noleggio-hero">
     {renderPublicNav({
       active: 'noleggio',
@@ -3249,7 +3478,7 @@ if (isEdiliziaPage) {
   return (
     <>
     {renderGridControls()}
-    <main className="showroom-page edilizia-page">
+    <main key={currentPath} className="showroom-page edilizia-page">
     <section className="showroom-hero">
     <img
     className="showroom-hero-image"
@@ -3394,7 +3623,7 @@ if (isPublicHome) {
   return (
     <>
     {renderGridControls()}
-    <main className="blank-page">
+    <main key={currentPath} className="blank-page">
     <section className="home-section home-section-hero" data-bg={homeSectionColors[0]}>
     <img
     className="home-hero-image"

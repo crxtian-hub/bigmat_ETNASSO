@@ -6211,6 +6211,20 @@ h3 {
 }
 
 @media (max-width: 767px) {
+  .mobile-page-transition-cover {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--surface);
+    pointer-events: auto;
+  }
+
+  body.mobile-public-scroll.is-mobile-page-transitioning #root {
+    overflow-y: hidden;
+    overflow-anchor: none;
+    pointer-events: none;
+  }
+
   html.mobile-public-scroll,
   body.mobile-public-scroll {
     width: 100%;
@@ -7897,14 +7911,15 @@ h3 {
   
   .promozioni-product-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12vw var(--layout-gap);
+    gap: 50px var(--layout-gap);
     margin-top: 10vw;
   }
   
   .promozione-product-item {
     grid-column: 1 / -1;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 3vw var(--layout-gap);
+    row-gap: 25px;
+    column-gap: var(--layout-gap);
   }
   
   .promozione-product-item img {
@@ -7919,37 +7934,34 @@ h3 {
     grid-row: 2;
     min-width: 0;
     min-height: 0;
-    gap: 3vw;
+    gap: 12.5px;
     overflow-wrap: anywhere;
   }
   
   .promozione-product-data h2 {
-    font-size: 5.5vw;
+    font-size: 7vw;
     line-height: 1.05;
   }
   
-  .promozione-product-brand,
+  .promozione-product-brand {
+    font-size: 4vw;
+    line-height: 1.15;
+  }
+
   .promozione-product-description {
     font-size: 4vw;
     line-height: 1.15;
   }
   
   .promozione-product-data .promozione-product-prices {
-    margin-top: 2vw;
+    margin-top: 0;
     gap: 2vw;
     font-size: 4.5vw;
     line-height: 1.15;
   }
   
   .promozione-product-item .promozione-product-arrow {
-    position: static;
-    grid-column: 4;
-    grid-row: 3;
-    justify-self: end;
-    margin-right: 1vw;
-    font-size: 4vw;
-    opacity: 1;
-    visibility: visible;
+    display: none;
   }
   
   .promozione-product-item:not(a) .promozione-product-arrow {
@@ -8062,7 +8074,7 @@ h3 {
   .chi-siamo-team {
     height: auto;
     min-height: 0;
-    padding-bottom: 30vw;
+    padding-bottom: 75px;
   }
   
   .chi-siamo-reviews {
@@ -8093,6 +8105,7 @@ h3 {
   
   .chi-siamo-intro .chi-siamo-values-copy {
     margin-top: 4vw;
+    transform: translateY(12.5px);
   }
 }
 
@@ -8231,6 +8244,7 @@ h3 {
   
   .home-footer-logos {
     display: block;
+    transform: translateY(-10vw);
   }
   
   .home-footer-logos-group {
