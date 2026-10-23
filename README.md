@@ -31,6 +31,8 @@ Apri `http://localhost:8000`.
 
 Il frontend chiama `/api/products.php`; il router incluso inoltra le API PHP e lascia servire gli asset dalla cartella `public`.
 
+Le foto della squadra usano `/api/team-image.php` per ottenere copie WebP adatte allo schermo, conservando gli originali. Le copie sono generate con PHP GD (supporto WebP) e salvate nella directory temporanea del server; se GD o la cache non sono disponibili, viene servita la foto originale.
+
 ## Recensioni Google
 
 La home legge le recensioni da `/api/google-reviews.php`. Configura queste variabili d'ambiente sul server:

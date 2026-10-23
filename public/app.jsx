@@ -155,6 +155,20 @@ function assetUrl(path) {
   return path.startsWith('/') || path.startsWith('http') ? path : `/${path}`;
 }
 
+function teamImageProps(path, founders = false) {
+  const src = assetUrl(path);
+  if (!/^\/uploads\/[\w-]+\.(jpe?g|png|webp|gif)$/i.test(src)
+    && src !== '/assets/home/Paride_Pino.webp') return { src };
+  const variant = (width) => `/api/team-image.php?image=${encodeURIComponent(src)}&width=${width}`;
+  return {
+    src: variant(640),
+    srcSet: [320, 640, 960, 1280, 1920].map((width) => `${variant(width)} ${width}w`).join(', '),
+    sizes: founders
+      ? '(max-width: 767px) 88.06vw, 34.693878vw'
+      : '(max-width: 767px) 42.538vw, 17.687075vw',
+  };
+}
+
 const preloadedImageAssets = new Map();
 const decodedHeaderAssets = new Map();
 
@@ -248,13 +262,17 @@ function preloadHeaderAsset(path) {
 }
 
 function preloadImageAsset(path) {
-  const src = assetUrl(path);
+  const asset = typeof path === 'string' ? { src: assetUrl(path) } : path;
+  const src = asset.src;
   if (!src) {
     return Promise.resolve();
   }
 
-  if (preloadedImageAssets.has(src)) {
-    return preloadedImageAssets.get(src);
+  const cacheKey = asset.srcSet
+    ? `${src}|${asset.sizes}|${window.innerWidth}|${window.devicePixelRatio}`
+    : src;
+  if (preloadedImageAssets.has(cacheKey)) {
+    return preloadedImageAssets.get(cacheKey);
   }
 
   const promise = new Promise((resolve) => {
@@ -267,8 +285,9 @@ function preloadImageAsset(path) {
       if (timeoutId) window.clearTimeout(timeoutId);
       image.onload = null;
       image.onerror = null;
-      if (!loaded) preloadedImageAssets.delete(src);
-      resolve();
+      if (!loaded) preloadedImageAssets.delete(cacheKey);
+      // Retain the small decoded portraits for the destination page.
+      resolve(loaded && asset.srcSet ? image : undefined);
     };
     const decodeLoadedImage = () => {
       if (typeof image.decode !== 'function') {
@@ -280,11 +299,14 @@ function preloadImageAsset(path) {
     image.onload = decodeLoadedImage;
     image.onerror = () => finish();
     timeoutId = window.setTimeout(() => finish(), 5000);
+    image.decoding = 'async';
+    if (asset.sizes) image.sizes = asset.sizes;
+    if (asset.srcSet) image.srcset = asset.srcSet;
     image.src = src;
     if (image.complete) decodeLoadedImage();
   });
 
-  preloadedImageAssets.set(src, promise);
+  preloadedImageAssets.set(cacheKey, promise);
   return promise;
 }
 
@@ -698,7 +720,7 @@ function ShowroomRenderImage({ render, closing, onClosed }) {
 
   useEffect(() => {
     if (!tagsClosing) return undefined;
-    const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220;
+    const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 420;
     const timeout = window.setTimeout(() => setTagsClosing(false), duration);
     return () => window.clearTimeout(timeout);
   }, [tagsClosing]);
@@ -1154,6 +1176,21 @@ function App() {
     document.body.classList.add('is-desktop-page-transitioning');
     return () => document.body.classList.remove('is-desktop-page-transitioning');
   }, [Boolean(logoTransition), logoTransition?.mobile]);
+
+  useLayoutEffect(() => {
+    if (!logoTransition || logoTransition.mobile || logoTransition.reducedMotion
+      || logoTransition.phase !== 'resize' || !logoTransition.navColorFrom) return;
+    const body = document.body;
+    body.style.setProperty('--nav-color-from', logoTransition.navColorFrom);
+    body.style.setProperty('--nav-color-to', logoTransition.navColorTo);
+    body.classList.add('is-nav-color-transitioning');
+    return () => {
+      body.classList.remove('is-nav-color-transitioning');
+      body.style.removeProperty('--nav-color-from');
+      body.style.removeProperty('--nav-color-to');
+    };
+  }, [Boolean(logoTransition), logoTransition?.mobile, logoTransition?.reducedMotion,
+    logoTransition?.phase, logoTransition?.navColorFrom, logoTransition?.navColorTo]);
 
   useLayoutEffect(() => {
     const isMobilePageTransition = mobilePageTransitioning
@@ -1980,6 +2017,16 @@ const peopleItems = useMemo(
   [products]
 );
 
+useEffect(() => {
+  if (!isChiSiamoPage) return undefined;
+  const controller = new AbortController();
+  // Decode offscreen portraits as soon as the catalog mounts, before a fast scroll.
+  document.querySelectorAll('.chi-siamo-team-person img').forEach((image) => {
+    waitForDecodedImage(image, controller.signal).catch(() => {});
+  });
+  return () => controller.abort();
+}, [isChiSiamoPage, peopleItems]);
+
 function editSectionProduct(product) {
   if (!activeProductSection) {
     return;
@@ -2486,9 +2533,10 @@ function publicPageImageAssets(path, catalogProducts = products) {
     '/chi-siamo': [
       '/assets/home/chiSiamo1.webp',
       '/assets/home/chiSiamo2.webp',
-      '/assets/home/Paride_Pino.webp',
+      '/assets/home/chiSiamo3.webp',
+      teamImageProps('/assets/home/Paride_Pino.webp', true),
       '/assets/home/footerChiSiamo.webp',
-      ...catalogImagesForCategory(peopleSection.category),
+      ...catalogImagesForCategory(peopleSection.category).map((src) => teamImageProps(src)),
     ],
   };
   const renderAssets = pathname.startsWith('/showroom-render')
@@ -2925,6 +2973,13 @@ async function deleteProduct(product) {
       const coverSrc = heroPath ? headerAssetSrc(heroPath) : sourceHero?.currentSrc;
       const animateLogoForNavigation = !reducedMotion && shouldAnimateLogo
         && (isMobile || Boolean(from && headerLogoForPath(currentPath) !== headerLogoForPath(path)));
+      const isDarkNavPath = (value) => value === '/' || value === '/chi-siamo';
+      const navColorFrom = isDarkNavPath(currentPath) === isDarkNavPath(path)
+        ? ''
+        : isDarkNavPath(currentPath) ? 'var(--ink)' : 'var(--surface)';
+      const navColorTo = navColorFrom
+        ? (isDarkNavPath(path) ? 'var(--ink)' : 'var(--surface)')
+        : '';
       if (!coverSrc && !animateLogoForNavigation) {
         logoBusyRef.current = false;
         navigatePublic(path);
@@ -2946,6 +3001,8 @@ async function deleteProduct(product) {
         coverSrc,
         coverTint: heroPath ? (path === '/' ? 0 : 0.36)
           : 1 - Number(sourceHero ? window.getComputedStyle(sourceHero).opacity : 1),
+        navColorFrom,
+        navColorTo,
         path,
       });
     } catch {
@@ -3317,6 +3374,7 @@ if (isChiSiamoPage) {
     <div className="chi-siamo-story-images">
     <img className="chi-siamo-image-primary" src="/assets/home/chiSiamo1.webp" alt="La sede BigMat ET Nasso" />
     <img className="chi-siamo-image-secondary" src="/assets/home/chiSiamo2.webp" alt="Vista dall'alto della sede" />
+    <img className="chi-siamo-image-tertiary" src="/assets/home/chiSiamo3.webp" alt="La squadra BigMat ET Nasso" />
     </div>
     <div className="chi-siamo-values">
     <h2 className="chi-siamo-value chi-siamo-value-quality"><RevealLines lines={['qualità']} /></h2>
@@ -3331,7 +3389,7 @@ if (isChiSiamoPage) {
     <section className="chi-siamo-section chi-siamo-team">
     <h2 className="home-section-title"><span><RevealLines lines={['La nostra squadra']} /></span></h2>
     <figure className="chi-siamo-team-person chi-siamo-founders">
-      <img src="/assets/home/Paride_Pino.webp" alt="Giuseppe Nasso e Paride Nasso, fondatori" loading="lazy" />
+      <img {...teamImageProps('/assets/home/Paride_Pino.webp', true)} alt="Giuseppe Nasso e Paride Nasso, fondatori" loading="eager" decoding="async" fetchpriority="high" width="510" height="480" />
       <figcaption>
         <h3>Paride Nasso, Giuseppe Nasso</h3>
         <p>fondatori</p>
@@ -3341,7 +3399,7 @@ if (isChiSiamoPage) {
       <div className="chi-siamo-team-grid">
         {peopleItems.filter((person) => person.image).map((person) => (
           <figure className="chi-siamo-team-person" key={person.id}>
-            <img src={assetUrl(person.image)} alt={person.brand || person.name} loading="lazy" />
+            <img {...teamImageProps(person.image)} alt={person.brand || person.name} loading="eager" decoding="async" width="260" height="300" />
             <figcaption>
               <h3>{person.brand || person.name}</h3>
               {(person.model || person.description) && <p>{person.model || person.description}</p>}
