@@ -156,6 +156,96 @@ function assetUrl(path) {
 }
 
 const preloadedImageAssets = new Map();
+const decodedHeaderAssets = new Map();
+
+function headerHeroForPath(path) {
+  const pathname = path.split('#')[0].replace(/\/+$/, '') || '/';
+  return {
+    '/': '/assets/home/fullscreenHome.jpeg',
+    '/showroom': '/assets/home/headerShowroom.webp',
+    '/noleggio': '/assets/home/headerNoleggio.webp',
+    '/edilizia': '/assets/home/ediliziaHeader.webp',
+    '/promozioni': '/assets/home/headerPromozioni.webp',
+  }[pathname] || '';
+}
+
+function headerAssetSrc(path) {
+  const src = assetUrl(path);
+  return decodedHeaderAssets.get(src)?.url || src;
+}
+
+function waitForDecodedImage(image, signal) {
+  return new Promise((resolve, reject) => {
+    if (!image || signal?.aborted) {
+      reject(new Error('Caricamento immagine annullato.'));
+      return;
+    }
+    let settled = false;
+    let decoding = false;
+    const finish = (error) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timeout);
+      image.removeEventListener('load', decode);
+      image.removeEventListener('error', fail);
+      signal?.removeEventListener('abort', abort);
+      if (error) reject(error);
+      else resolve(image);
+    };
+    const fail = () => finish(new Error('Impossibile caricare l’immagine della header.'));
+    const abort = () => finish(new Error('Caricamento immagine annullato.'));
+    const decode = async () => {
+      if (decoding || settled) return;
+      decoding = true;
+      try {
+        if (!image.naturalWidth || !image.naturalHeight) throw new Error('Immagine non disponibile.');
+        if (typeof image.decode === 'function') await image.decode();
+        finish();
+      } catch (error) {
+        finish(error);
+      }
+    };
+    const timeout = window.setTimeout(fail, 20000);
+    image.addEventListener('load', decode, { once: true });
+    image.addEventListener('error', fail, { once: true });
+    signal?.addEventListener('abort', abort, { once: true });
+    if (image.complete) decode();
+  });
+}
+
+function preloadHeaderAsset(path) {
+  const src = assetUrl(path);
+  if (!src) return Promise.resolve(null);
+  if (decodedHeaderAssets.has(src)) return decodedHeaderAssets.get(src).promise;
+
+  const asset = { url: '', image: null, promise: null };
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 20000);
+  let objectUrl = '';
+  asset.promise = (async () => {
+    const response = await fetch(src, { signal: controller.signal, priority: 'high' });
+    if (!response.ok) throw new Error('Immagine della header non disponibile.');
+    const blob = await response.blob();
+    const imageType = { svg: 'image/svg+xml', webp: 'image/webp', jpeg: 'image/jpeg', jpg: 'image/jpeg' }
+      [src.split('.').pop().toLowerCase()];
+    objectUrl = URL.createObjectURL(imageType ? blob.slice(0, blob.size, imageType) : blob);
+    const image = new Image();
+    image.decoding = 'async';
+    image.src = objectUrl;
+    await waitForDecodedImage(image, controller.signal);
+    // Keep both the decoded pixels and the bytes available for subsequent page mounts.
+    // A destination header uses this local URL and never starts a second network request.
+    asset.image = image;
+    asset.url = objectUrl;
+    return asset;
+  })().catch((error) => {
+    decodedHeaderAssets.delete(src);
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    throw error;
+  }).finally(() => window.clearTimeout(timeout));
+  decodedHeaderAssets.set(src, asset);
+  return asset.promise;
+}
 
 function preloadImageAsset(path) {
   const src = assetUrl(path);
@@ -171,24 +261,25 @@ function preloadImageAsset(path) {
     const image = new Image();
     let settled = false;
     let timeoutId = 0;
-    const finish = () => {
+    const finish = (loaded = false) => {
       if (settled) return;
       settled = true;
       if (timeoutId) window.clearTimeout(timeoutId);
       image.onload = null;
       image.onerror = null;
+      if (!loaded) preloadedImageAssets.delete(src);
       resolve();
     };
     const decodeLoadedImage = () => {
       if (typeof image.decode !== 'function') {
-        finish();
+        finish(image.naturalWidth > 0);
         return;
       }
-      image.decode().catch(() => {}).finally(finish);
+      image.decode().then(() => finish(true), () => finish());
     };
     image.onload = decodeLoadedImage;
-    image.onerror = finish;
-    timeoutId = window.setTimeout(finish, 5000);
+    image.onerror = () => finish();
+    timeoutId = window.setTimeout(() => finish(), 5000);
     image.src = src;
     if (image.complete) decodeLoadedImage();
   });
@@ -326,38 +417,18 @@ function headerLogoForPath(path) {
   return '/assets/logos/BigMat_ETN_Logo_Header.svg';
 }
 
-function HeaderLogoTransition({ transition, onSwap, onDone }) {
+function HeaderLogoTransition({ transition, onSwap, onDone, onCancel }) {
   const rectangleRef = useRef(null);
   const coverRef = useRef(null);
-  const callbacksRef = useRef({ onSwap, onDone });
-  callbacksRef.current = { onSwap, onDone };
+  const callbacksRef = useRef({ onSwap, onDone, onCancel });
+  callbacksRef.current = { onSwap, onDone, onCancel };
 
   useLayoutEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
     const animations = [];
     const nextFrame = () => new Promise((resolve) => window.requestAnimationFrame(resolve));
-    async function waitForImage(image) {
-      if (!image) return;
-      await new Promise((resolve) => {
-        let settled = false;
-        const finish = () => {
-          if (settled) return;
-          settled = true;
-          window.clearTimeout(timeout);
-          image.removeEventListener('load', decode);
-          image.removeEventListener('error', finish);
-          resolve();
-        };
-        const decode = () => {
-          if (typeof image.decode === 'function') image.decode().catch(() => {}).finally(finish);
-          else finish();
-        };
-        const timeout = window.setTimeout(finish, 2000);
-        image.addEventListener('load', decode, { once: true });
-        image.addEventListener('error', finish, { once: true });
-        if (image.complete) decode();
-      });
-    }
+    const waitForImage = (image) => image ? waitForDecodedImage(image, controller.signal) : Promise.resolve();
     async function waitForBounds(selector, attempts = 24) {
       for (let attempt = 0; attempt < attempts; attempt += 1) {
         const element = document.querySelector(selector);
@@ -375,77 +446,97 @@ function HeaderLogoTransition({ transition, onSwap, onDone }) {
     }
     async function run() {
       const rectangle = rectangleRef.current;
+      const cover = coverRef.current;
+      const outDuration = transition.reducedMotion ? 0 : 640;
+      const inDuration = transition.reducedMotion ? 0 : 800;
       if (transition.phase === 'out') {
-        await waitForImage(rectangle.querySelector('img'));
+        await Promise.all([
+          transition.animateLogo ? waitForImage(rectangle.querySelector('img')) : Promise.resolve(),
+          waitForImage(cover?.querySelector('img')),
+        ]);
         if (cancelled) return;
         await Promise.all([
-          animate(rectangle, [{ clipPath: 'inset(0 0% 0 0)' }, { clipPath: 'inset(0 100% 0 0)' }], transition.mobile ? 520 : 360),
-          transition.mobile
-            ? animate(coverRef.current, [{ opacity: 0 }, { opacity: 1 }], 520)
+          transition.animateLogo
+            ? animate(rectangle, [{ clipPath: 'inset(0 0% 0 0)' }, { clipPath: 'inset(0 100% 0 0)' }], outDuration)
+            : Promise.resolve(),
+          cover
+            ? animate(cover, [{ opacity: 0 }, { opacity: 1 }], outDuration)
             : Promise.resolve(),
         ]);
         if (!cancelled) callbacksRef.current.onSwap();
         return;
       }
-      // Let the destination commit and reset its scroll underneath the opaque cover.
-      if (transition.mobile) {
-        await nextFrame();
-        await nextFrame();
-        if (cancelled) return;
-      }
+      // The decoded photograph stays on screen while the destination mounts and paints.
+      await nextFrame();
+      await nextFrame();
+      if (cancelled) return;
       const targetSelector = transition.mobile || window.matchMedia('(max-width: 767px)').matches
         ? '.home-logo'
         : '.home-logo img';
-      const { bounds: targetBounds } = await waitForBounds(targetSelector);
+      const { bounds: targetBounds } = transition.animateLogo
+        ? await waitForBounds(targetSelector)
+        : { bounds: null };
       if (cancelled) return;
-      if (!targetBounds || !targetBounds.width || !targetBounds.height) {
-        callbacksRef.current.onDone();
-        return;
+      if (targetBounds) {
+        Object.assign(rectangle.style, {
+          left: `${targetBounds.left + (transition.mobile ? 0 : window.scrollX)}px`,
+          top: `${targetBounds.top + (transition.mobile ? 0 : getPageScrollTop())}px`,
+          width: `${targetBounds.width}px`, height: `${targetBounds.height}px`,
+        });
       }
-      const target = {
-        left: targetBounds.left + (transition.mobile ? 0 : window.scrollX),
-        top: targetBounds.top + (transition.mobile ? 0 : getPageScrollTop()),
-        width: targetBounds.width,
-        height: targetBounds.height,
-      };
-      Object.assign(rectangle.style, {
-        left: `${target.left}px`, top: `${target.top}px`,
-        width: `${target.width}px`, height: `${target.height}px`,
-      });
-      const visibleImages = transition.mobile
-        ? [...document.querySelectorAll('#root > main img')].filter((image) => {
-          const bounds = image.getBoundingClientRect();
-          return bounds.width > 0 && bounds.height > 0 && bounds.bottom > 0 && bounds.top < window.innerHeight;
-        })
-        : [];
+      const hero = document.querySelector('#root > main [data-header-image]');
       await Promise.all([
-        waitForImage(rectangle.querySelector('img')),
+        transition.animateLogo ? waitForImage(rectangle.querySelector('img')) : Promise.resolve(),
         waitForImage(document.querySelector('.home-logo img')),
-        ...visibleImages.map(waitForImage),
+        waitForImage(hero),
       ]);
       if (cancelled) return;
+      if (hero && cover) {
+        const bounds = hero.getBoundingClientRect();
+        const style = window.getComputedStyle(hero);
+        Object.assign(cover.querySelector('img').style, {
+          left: `${bounds.left}px`, top: `${bounds.top}px`,
+          width: `${bounds.width}px`, height: `${bounds.height}px`,
+          objectFit: style.objectFit, objectPosition: style.objectPosition,
+        });
+      }
+      await nextFrame();
+      await nextFrame();
+      if (cancelled) return;
       await Promise.all([
-        animate(rectangle, [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], transition.mobile ? 620 : 440),
-        transition.mobile
-          ? animate(coverRef.current, [{ opacity: 1 }, { opacity: 0 }], 620)
+        transition.animateLogo && targetBounds
+          ? animate(rectangle, [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], inDuration)
+          : Promise.resolve(),
+        cover
+          ? animate(cover, [{ opacity: 1 }, { opacity: 0 }], inDuration)
           : Promise.resolve(),
       ]);
       // Keep the completed overlay until the actual header image has a painted frame.
       await new Promise((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
       if (!cancelled) callbacksRef.current.onDone();
     }
-    run().catch(() => { if (!cancelled) callbacksRef.current.onDone(); });
+    run().catch(() => {
+      if (cancelled) return;
+      if (transition.phase === 'out') callbacksRef.current.onCancel();
+      // Keep the photograph visible if the mounted header cannot be drawn yet.
+      else if (coverRef.current) coverRef.current.style.opacity = '1';
+      else callbacksRef.current.onDone();
+    });
     return () => {
       cancelled = true;
+      controller.abort();
       animations.forEach((animation) => animation.cancel());
     };
   }, [transition]);
 
   return ReactDOM.createPortal(
     <>
-    {transition.mobile && <div ref={coverRef} className="mobile-page-transition-cover" aria-hidden="true"
-      data-phase={transition.phase} style={{ opacity: transition.phase === 'out' ? 0 : 1 }} />}
+    {transition.coverSrc && <div ref={coverRef} className="page-transition-cover" aria-hidden="true"
+      data-phase={transition.phase} style={{ opacity: transition.phase === 'out' ? 0 : 1, '--cover-tint': transition.coverTint }}>
+      <img src={transition.coverSrc} alt="" />
+    </div>}
     <div ref={rectangleRef} className={`header-logo-transition${transition.mobile ? ' is-mobile' : ''}`} data-phase={transition.phase} aria-hidden="true"
+      hidden={!transition.animateLogo}
       style={{ left: transition.from?.left ?? 0, top: transition.from?.top ?? 0, width: transition.from?.width ?? 0, height: transition.from?.height ?? 0, clipPath: transition.phase === 'out' ? 'inset(0 0% 0 0)' : 'inset(0 100% 0 0)' }}>
       <img src={transition.phase === 'out' ? transition.fromSrc : transition.toSrc} alt="" />
     </div>
@@ -1053,10 +1144,16 @@ function App() {
   }, []);
 
   useLayoutEffect(() => {
-    if (!logoTransition) return;
+    if (!logoTransition?.animateLogo) return;
     document.body.classList.add('is-logo-transitioning');
     return () => document.body.classList.remove('is-logo-transitioning');
-  }, [Boolean(logoTransition)]);
+  }, [Boolean(logoTransition?.animateLogo)]);
+
+  useLayoutEffect(() => {
+    if (!logoTransition || logoTransition.mobile) return;
+    document.body.classList.add('is-desktop-page-transitioning');
+    return () => document.body.classList.remove('is-desktop-page-transitioning');
+  }, [Boolean(logoTransition), logoTransition?.mobile]);
 
   useLayoutEffect(() => {
     const isMobilePageTransition = mobilePageTransitioning
@@ -2417,15 +2514,23 @@ async function preloadPublicPage(path) {
     || pathname === '/promozioni'
     || pathname === '/chi-siamo'
     || pathname.startsWith('/showroom-render');
-  let catalogProducts = products;
-  if (needsCatalog && catalogProducts.length === 0) {
-    try {
-      catalogProducts = await preloadPublicCatalog();
-    } catch {
-      // Static page assets still get preloaded if the catalog is unavailable.
-    }
-  }
-  await Promise.all(publicPageImageAssets(path, catalogProducts).map((src) => preloadImageAsset(src)));
+  const requiredAssets = [headerHeroForPath(path), headerLogoForPath(path)].filter(Boolean);
+  await Promise.all([
+    ...requiredAssets.map(preloadHeaderAsset),
+    (async () => {
+      let catalogProducts = products;
+      if (needsCatalog && catalogProducts.length === 0) {
+        try {
+          catalogProducts = await preloadPublicCatalog();
+        } catch {
+          // Catalog availability must not bypass the required header preload.
+        }
+      }
+      const remainingAssets = publicPageImageAssets(path, catalogProducts)
+        .filter((src) => !requiredAssets.includes(src));
+      await Promise.all(remainingAssets.map((src) => preloadImageAsset(src)));
+    })(),
+  ]);
 }
 
 useLayoutEffect(() => {
@@ -2754,6 +2859,11 @@ async function deleteProduct(product) {
         logoBusyRef.current = false;
         setLogoTransition(null);
         finishMobilePageTransition();
+      }}
+      onCancel={() => {
+        logoBusyRef.current = false;
+        setLogoTransition(null);
+        finishMobilePageTransition();
       }} />}
     {!isAdminPage && !isPreloaderPage && renderMobileMenu()}
     <button
@@ -2799,67 +2909,50 @@ async function deleteProduct(product) {
       setMobileMenuRenderOpening('');
     }
     closeMobileMenu();
-    if (isMobile) {
-      logoBusyRef.current = true;
-      try {
-        await preloadPublicPage(path);
-        if (navigationId !== publicNavigationIdRef.current) return;
-        if (!shouldAnimateLogo || reducedMotion) {
-          logoBusyRef.current = false;
-          navigatePublic(path);
-          return;
-        }
-        // Measure only after preloading: the user may have scrolled in the meantime.
-        const sourceFrame = [...document.querySelectorAll('.home-logo')].find((element) => {
-          const bounds = element.getBoundingClientRect();
-          return bounds.width > 0 && bounds.height > 0 && bounds.bottom > 0 && bounds.top < window.innerHeight;
-        });
-        const from = sourceFrame?.getBoundingClientRect();
-        startMobilePageTransition();
-        setLogoTransition({
-          phase: 'out',
-          mobile: true,
-          from: from ? { left: from.left, top: from.top, width: from.width, height: from.height } : null,
-          fromSrc: sourceFrame?.querySelector('img')?.getAttribute('src') || headerLogoForPath(currentPath),
-          toSrc: headerLogoForPath(path),
-          path,
-        });
-      } catch {
-        if (navigationId !== publicNavigationIdRef.current) return;
-        logoBusyRef.current = false;
-        finishMobilePageTransition();
-        navigatePublic(path);
-      }
-      return;
-    }
-    const source = document.querySelector('.home-logo img');
-    const fromSrc = source?.getAttribute('src');
-    const toSrc = headerLogoForPath(path);
-    const from = source?.getBoundingClientRect();
-    if (!shouldAnimateLogo || reducedMotion || !from?.width || !from.height || from.bottom <= 0 || fromSrc === toSrc) {
-      navigatePublic(path);
-      return;
-    }
     logoBusyRef.current = true;
     try {
-      const heroSrc = {
-        '/': '/assets/home/fullscreenHome.jpeg',
-        '/showroom': '/assets/home/headerShowroom.webp',
-        '/noleggio': '/assets/home/headerNoleggio.webp',
-        '/edilizia': '/assets/home/ediliziaHeader.webp',
-        '/promozioni': '/assets/home/headerPromozioni.webp',
-      }[path];
-      await Promise.all([toSrc, heroSrc].filter(Boolean).map(async (src) => {
-        const image = new Image();
-        image.src = src;
-        await image.decode();
-      }));
+      await preloadPublicPage(path);
       if (navigationId !== publicNavigationIdRef.current) return;
-      setLogoTransition({ phase: 'out', from: { left: from.left + window.scrollX, top: from.top + getPageScrollTop(), width: from.width, height: from.height }, fromSrc, toSrc, path });
+      // The source may have moved while the destination assets were being prepared.
+      const sourceFrame = [...document.querySelectorAll('.home-logo')].find((element) => {
+        const bounds = element.getBoundingClientRect();
+        return bounds.width > 0 && bounds.height > 0 && bounds.bottom > 0 && bounds.top < window.innerHeight;
+      });
+      const source = sourceFrame?.querySelector('img');
+      const from = (isMobile ? sourceFrame : source)?.getBoundingClientRect();
+      const sourceHero = document.querySelector('#root > main [data-header-image]');
+      const heroPath = headerHeroForPath(path);
+      const coverSrc = heroPath ? headerAssetSrc(heroPath) : sourceHero?.currentSrc;
+      const animateLogoForNavigation = !reducedMotion && shouldAnimateLogo
+        && (isMobile || Boolean(from && headerLogoForPath(currentPath) !== headerLogoForPath(path)));
+      if (!coverSrc && !animateLogoForNavigation) {
+        logoBusyRef.current = false;
+        navigatePublic(path);
+        return;
+      }
+      if (isMobile) startMobilePageTransition();
+      setLogoTransition({
+        phase: 'out',
+        mobile: isMobile,
+        reducedMotion,
+        animateLogo: animateLogoForNavigation,
+        from: from ? {
+          left: from.left + (isMobile ? 0 : window.scrollX),
+          top: from.top + (isMobile ? 0 : getPageScrollTop()),
+          width: from.width, height: from.height,
+        } : null,
+        fromSrc: source?.getAttribute('src') || headerAssetSrc(headerLogoForPath(currentPath)),
+        toSrc: headerAssetSrc(headerLogoForPath(path)),
+        coverSrc,
+        coverTint: heroPath ? (path === '/' ? 0 : 0.36)
+          : 1 - Number(sourceHero ? window.getComputedStyle(sourceHero).opacity : 1),
+        path,
+      });
     } catch {
       if (navigationId !== publicNavigationIdRef.current) return;
       logoBusyRef.current = false;
-      navigatePublic(path);
+      finishMobilePageTransition();
+      // Keep the current page intact; another click can retry a failed header request.
     }
   }
 
@@ -2933,7 +3026,7 @@ async function deleteProduct(product) {
       <>
       <nav className={`home-nav ${tone === 'light' ? 'showroom-nav' : ''}`} aria-label="Navigazione principale">
       <a className="home-logo" href="/" aria-label={logoAlt} onClick={(event) => handlePublicNavClick(event, '/')}>
-      <img src={logo} alt={logoAlt} />
+      <img src={headerAssetSrc(logo)} alt={logoAlt} />
       </a>
       {navItems.map((item) => (
         <a
@@ -2948,6 +3041,7 @@ async function deleteProduct(product) {
       <a className="home-nav-item home-nav-contattaci" href="#footer-contatti" onClick={(event) => {
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0) return;
         event.preventDefault();
+        if (logoBusyRef.current) return;
         document.getElementById('footer-contatti')?.scrollIntoView({
           behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
           block: 'start',
@@ -3030,7 +3124,7 @@ if (isShowroomPage) {
       logoAlt: 'HabiMat ET Nasso',
       tone: 'light',
     })}
-    <img className="showroom-blank-hero-image" src="/assets/home/headerShowroom.webp" alt="" aria-hidden="true" />
+    <img className="showroom-blank-hero-image" src={headerAssetSrc('/assets/home/headerShowroom.webp')} data-header-image decoding="async" alt="" aria-hidden="true" />
     <div className="showroom-blank-hero-copy">
     <h1>
     <span className="showroom-hero-title-desktop">
@@ -3292,7 +3386,7 @@ if (isPromozioniPage) {
     {renderGridControls()}
     <main key={currentPath} className="promozioni-page">
     <section className="promozioni-hero">
-    <img className="promozioni-hero-image" src="/assets/home/headerPromozioni.webp" alt="" aria-hidden="true" />
+    <img className="promozioni-hero-image" src={headerAssetSrc('/assets/home/headerPromozioni.webp')} data-header-image decoding="async" alt="" aria-hidden="true" />
     {renderPublicNav({ active: 'promozioni', tone: 'light' })}
     <h1 className="promozioni-lead">
     <span className="promozioni-lead-desktop"><RevealLines lines={['Selezioniamo per te', 'i prezzi più vantaggiosi', 'senza perdere di vista', 'la qualità.']} /></span>
@@ -3370,7 +3464,7 @@ if (isNoleggioPage) {
       logoAlt: 'BigRent ET Nasso',
       tone: 'light',
     })}
-    <img className="noleggio-hero-image" src="/assets/home/headerNoleggio.webp" alt="" aria-hidden="true" />
+    <img className="noleggio-hero-image" src={headerAssetSrc('/assets/home/headerNoleggio.webp')} data-header-image decoding="async" alt="" aria-hidden="true" />
     <div className="showroom-hero-copy noleggio-hero-copy">
     <h1>
     <RevealLines lines={['Noleggiamo macchinari', 'all’avanguardia', 'per professionisti.']} />
@@ -3483,7 +3577,9 @@ if (isEdiliziaPage) {
     <section className="showroom-hero">
     <img
     className="showroom-hero-image"
-    src="/assets/home/ediliziaHeader.webp"
+    src={headerAssetSrc('/assets/home/ediliziaHeader.webp')}
+    data-header-image
+    decoding="async"
     alt=""
     aria-hidden="true"
     />
@@ -3628,7 +3724,9 @@ if (isPublicHome) {
     <section className="home-section home-section-hero" data-bg={homeSectionColors[0]}>
     <img
     className="home-hero-image"
-    src="/assets/home/fullscreenHome.jpeg"
+    src={headerAssetSrc('/assets/home/fullscreenHome.jpeg')}
+    data-header-image
+    decoding="async"
     alt=""
     aria-hidden="true"
     />
@@ -3793,7 +3891,7 @@ if (isPublicHome) {
     <li><RevealLines lines={['MACCHINE IMPASTATRICI']} /></li>
     <li><RevealLines lines={['ATTREZZI PER DEMOLIZIONI']} /></li>
     </ul>
-    <a className="services-noleggio-cta" href="/noleggio">
+    <a className="services-noleggio-cta" href="/noleggio" onClick={(event) => handlePublicNavClick(event, '/noleggio')}>
     <RevealLines lines={['NOLEGGIO']} />
     </a>
     </section>
