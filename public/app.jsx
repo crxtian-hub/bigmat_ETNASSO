@@ -6,7 +6,7 @@ const brandsApiUrl = '/api/brands.php';
 const googleReviewsApiUrl = '/api/google-reviews.php';
 const productCategoriesApiUrl = '/api/product-categories.php';
 const layoutGridStorageKey = 'bigmat-layout-grid-visible';
-const SITE_PRELOADER_ENABLED = false;
+const SITE_PRELOADER_ENABLED = true;
 const homeSectionColors = ['#f5f2f0', '#f5f2f0', '#58575c', '#f5f2f0', '#f5f2f0', '#f5f2f0'];
 const fallbackClientReviews = [
   {
@@ -894,7 +894,9 @@ function App() {
   const [currentPath, setCurrentPath] = useState(() => window.location.pathname.replace(/\/+$/, '') || '/');
   const [initialPreloaderPhase, setInitialPreloaderPhase] = useState(() => {
     const initialPath = window.location.pathname.replace(/\/+$/, '') || '/';
-    return SITE_PRELOADER_ENABLED && initialPath !== '/preloader' && !initialPath.startsWith('/admin') ? 'visible' : 'done';
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return SITE_PRELOADER_ENABLED && !prefersReducedMotion
+      && initialPath !== '/preloader' && !initialPath.startsWith('/admin') ? 'visible' : 'done';
   });
   const [mobileMenuPhase, setMobileMenuPhase] = useState('closed');
   const [mobileMenuBottomCollapsed, setMobileMenuBottomCollapsed] = useState(false);
@@ -3871,7 +3873,7 @@ if (isPublicHome) {
     </h2>
     <p className="services-small-copy services-tools-copy">
     <span className="services-tools-copy-desktop">
-    <RevealLines lines={['Forniamo un servizio di', 'consulenza, progettazione e', 'costruzione con ditte edili partner.']} />
+    <RevealLines lines={['Forniamo un servizio', 'di consulenza, progettazione', 'e costruzione con ditte edili partner.']} />
     </span>
     <span className="services-tools-copy-mobile">
     <RevealLines lines={['Forniamo un servizio di consulenza, progettazione e costruzione con ditte edili partner.']} />

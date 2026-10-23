@@ -166,26 +166,26 @@ a {
 }
 
 .preloader-symbol {
-  --preloader-cube-lift: calc(var(--px) * 80);
+  --preloader-cube-lift: calc(var(--px) * 20);
   display: block;
   width: min(64vw, calc(var(--px) * 750));
   height: auto;
   overflow: visible;
-  transform: translateY(calc(-1 * var(--preloader-cube-lift))) scale(0.5);
+  transform: translateY(calc(-1 * var(--preloader-cube-lift))) scale(0.32);
   transform-origin: 50% 61.111%;
   animation: preloaderCubeApproach 700ms cubic-bezier(0.45, 0, 0.2, 1) 3180ms both;
 }
 
 @keyframes preloaderCubeApproach {
-  from { transform: translateY(calc(-1 * var(--preloader-cube-lift))) scale(0.5); }
-  to { transform: translateY(calc(-1 * var(--preloader-cube-lift) + var(--space-2) + var(--px) * 20)) scale(0.5); }
+  from { transform: translateY(calc(-1 * var(--preloader-cube-lift))) scale(0.32); }
+  to { transform: translateY(calc(-1 * var(--preloader-cube-lift) + var(--space-2) + var(--px) * 20)) scale(0.32); }
 }
 
 .preloader-identity {
   --preloader-logo-width: clamp(180px, calc(var(--px) * 260), 300px);
   --preloader-logo-top: calc(100% * 440 / 720 + var(--space-4));
   position: relative;
-  transform: translateY(calc(-1 * var(--space-8) - var(--px) * 90));
+  transform: translateY(calc(-1 * var(--space-8) - var(--px) * 60));
 }
 
 .preloader-header-logo {
@@ -287,7 +287,7 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .preloader-symbol {
     animation: none;
-    transform: translateY(calc(-1 * var(--preloader-cube-lift) + var(--space-2) + var(--px) * 20)) scale(0.5);
+    transform: translateY(calc(-1 * var(--preloader-cube-lift) + var(--space-2) + var(--px) * 20)) scale(0.32);
   }
   
   .preloader-logo-part,
@@ -941,7 +941,7 @@ a {
 
 @media (max-width: 767px) {
   .company-details-bar {
-    gap: 3vw;
+    gap: 6vw;
     padding-block: 4vw;
     font-size: 3vw;
   }
@@ -963,6 +963,16 @@ a {
 
 .chi-siamo-footer .home-footer-image {
   object-position: center 75%;
+}
+
+@media (max-width: 767px) {
+  .edilizia-footer .home-footer-image {
+    object-position: 0% center;
+  }
+
+  .noleggio-hero-image {
+    object-position: 0% center;
+  }
 }
 
 .home-footer::after {
@@ -6624,7 +6634,7 @@ h3 {
   .mobile-menu.is-open .mobile-menu-icon {
     right: calc(50% - 2.25vw);
     width: 4.5vw;
-    height: 4.5vw;
+    height: 1.8vw;
   }
   
   .mobile-menu.is-open .mobile-menu-icon i {
@@ -8359,22 +8369,32 @@ h3 {
   
   .home-footer-logos-group {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: center;
-    gap: 2vw;
+    gap: 0 var(--layout-gap);
   }
   
   .home-footer .home-footer-logos-group img {
-    grid-column: auto;
     align-self: center;
-    width: 100%;
-    height: 8vw;
+    width: auto;
+    height: calc(var(--px) * 50);
+    max-width: none;
+  }
+
+  .home-footer .home-footer-logo-bigmat {
+    grid-column: 1;
+    justify-self: start;
+    width: calc(var(--px) * 290);
+  }
+
+  .home-footer .home-footer-logo-bigrent {
+    grid-column: 2 / 4;
+    justify-self: center;
   }
 
   .home-footer .home-footer-logos-group img.home-footer-logo-habimat {
-    width: 70%;
-    height: auto;
-    justify-self: center;
+    grid-column: 4;
+    justify-self: end;
   }
   
   .home-footer-credits {
