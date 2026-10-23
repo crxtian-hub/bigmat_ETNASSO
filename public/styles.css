@@ -3368,6 +3368,10 @@ a {
   grid-column: 2 / 8;
 }
 
+.promozioni-lead > .promozioni-lead-mobile {
+  display: none;
+}
+
 .promozioni-active-title {
   position: relative;
   margin-top: calc(var(--px) * 90);
@@ -7890,6 +7894,14 @@ h3 {
   
   .promozioni-lead > span {
     grid-column: 1 / -1;
+    display: flow-root;
+  }
+
+  .promozioni-lead > .promozioni-lead-desktop {
+    display: none;
+  }
+
+  .promozioni-lead > .promozioni-lead-mobile {
     display: flow-root;
   }
   

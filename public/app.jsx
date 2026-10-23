@@ -3295,7 +3295,8 @@ if (isPromozioniPage) {
     <img className="promozioni-hero-image" src="/assets/home/headerPromozioni.webp" alt="" aria-hidden="true" />
     {renderPublicNav({ active: 'promozioni', tone: 'light' })}
     <h1 className="promozioni-lead">
-    <span><RevealLines lines={['Selezioniamo', 'per te i prezzi', 'più vantaggiosi', 'senza perdere', 'di vista la qualità.']} /></span>
+    <span className="promozioni-lead-desktop"><RevealLines lines={['Selezioniamo per te', 'i prezzi più vantaggiosi', 'senza perdere di vista', 'la qualità.']} /></span>
+    <span className="promozioni-lead-mobile"><RevealLines lines={['Selezioniamo', 'per te i prezzi', 'più vantaggiosi', 'senza perdere', 'di vista la qualità.']} /></span>
     </h1>
     </section>
     <section className="promozioni-products-section">
